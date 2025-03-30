@@ -1,0 +1,100 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700&family=Roboto+Mono&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --border-2: rgba(0, 0, 0, 0.08);
+    --bg-level3: rgba(0, 0, 0, 0.05);
+    --hyperlink-blue: #0077d9;
+  }
+}
+
+@layer components {
+  .text-md-bold {
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: 0;
+  }
+
+  .text-sm-bold {
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0;
+  }
+
+  .text-xs-bold {
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 18px;
+    letter-spacing: 0;
+  }
+
+  .text-xxs-bold {
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0;
+  }
+
+  .text-md {
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: 0;
+  }
+
+  .text-sm {
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0;
+  }
+
+  .text-xs {
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    line-height: 18px;
+    letter-spacing: 0;
+  }
+
+  .text-xxs {
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0;
+  }
+
+  .text-mono-xxs {
+    font-family: "Roboto Mono", monospace;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0;
+  }
+
+  .border-2 {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .bg-level3 {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  .card-hover-shadow {
+    box-shadow: 0px 4px 28px -6px rgba(8, 14, 28, 0.15);
+  }
+}
+
