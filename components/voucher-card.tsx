@@ -26,7 +26,7 @@ export default function VoucherCard({ voucher, searchQuery = "", isSelected = fa
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Unredeemed":
-        return "bg-white text-gray-900 border-2"
+        return "bg-white text-gray-900 border border-solid border-[rgba(0,0,0,0.08)]"
       case "Redeemed":
         return "bg-[#E5F3E9] text-[#006118]"
       case "Expired":
@@ -138,7 +138,7 @@ export default function VoucherCard({ voucher, searchQuery = "", isSelected = fa
 
         {/* Right Status container */}
         <div
-          className={`w-36 flex flex-col items-center justify-center p-3 rounded-lg gap-1 ${getStatusColor(
+          className={`w-36 flex flex-col items-center justify-center p-3 radius-8 gap-1 ${getStatusColor(
             voucher.status,
           )}`}
         >

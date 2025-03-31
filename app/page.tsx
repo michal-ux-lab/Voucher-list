@@ -1,11 +1,13 @@
 "use client"
 
+import type React from "react"
+
 import { Badge } from "@/components/ui/badge"
 
 import { ChevronDown, FileText, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import VoucherCard from "@/components/voucher-card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -160,6 +162,11 @@ export default function VoucherListPage() {
   const detailRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
 
+  // Add these new state variables and refs
+  const [showStickyHeader, setShowStickyHeader] = useState(false)
+  const firstVoucherRef = useRef<HTMLDivElement>(null)
+  const headerObserverRef = useRef<IntersectionObserver | null>(null)
+
   // Get the selected voucher details
   const selectedVoucher = allVouchers.find((v) => v.id === selectedVoucherId)
 
@@ -199,13 +206,50 @@ export default function VoucherListPage() {
     }
   }, [isDetailOpen])
 
+  // Add this useEffect for the Intersection Observer to detect when to show the sticky header
+  useEffect(() => {
+    if (firstVoucherRef.current) {
+      headerObserverRef.current = new IntersectionObserver(
+        ([entry]) => {
+          setShowStickyHeader(!entry.isIntersecting)
+        },
+        { threshold: 0 },
+      )
+
+      headerObserverRef.current.observe(firstVoucherRef.current)
+    }
+
+    return () => {
+      if (headerObserverRef.current) {
+        headerObserverRef.current.disconnect()
+      }
+    }
+  }, [filteredVouchers])
+
+  // Create a shared search handler function
+  const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }, [])
+
   const handleSelectVoucher = (id: number) => {
     setSelectedVoucherId(id)
     setIsDetailOpen(true)
   }
 
   const closeDetail = () => {
-    setIsDetailOpen(false)
+    // First set a state to trigger the animation
+    const detailElement = detailRef.current
+    if (detailElement) {
+      detailElement.style.transform = "translateX(100%)"
+      detailElement.style.opacity = "0"
+
+      // After animation completes, actually close the panel
+      setTimeout(() => {
+        setIsDetailOpen(false)
+      }, 300)
+    } else {
+      setIsDetailOpen(false)
+    }
   }
 
   return (
@@ -315,6 +359,44 @@ export default function VoucherListPage() {
           </div>
         </div>
 
+        {/* Sticky Header - Appears when scrolling past first voucher */}
+        {showStickyHeader && (
+          <div className="sticky top-[72px] z-10 bg-white border-b border-2 py-4 px-6 flex justify-between items-center">
+            <h1 className="text-2xl font-bold">Voucher list</h1>
+            <div className="w-[480px] flex items-center space-x-3">
+              <div className="flex-1 relative">
+                {/* Search icon */}
+                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                  <Image src="/icons/search.svg" width={16} height={16} alt="Search icon" />
+                </div>
+
+                {/* Search input */}
+                <Input
+                  type="text"
+                  placeholder="Search by name, redemption code or groupon no."
+                  className="pl-10 pr-4 py-2 border border-gray-300 radius-8 w-full"
+                  value={searchQuery}
+                  onChange={handleSearch}
+                />
+              </div>
+
+              {/* Search button */}
+              <Button className="bg-gray-900 hover:bg-gray-800 text-white text-sm-bold !text-white radius-8">
+                Search
+              </Button>
+
+              {/* Filters button */}
+              <Button
+                variant="outline"
+                className="bg-white text-gray-700 border-gray-300 flex items-center gap-2 text-sm-bold radius-8"
+              >
+                <Image src="/icons/filter.svg" width={20} height={20} alt="Filter icon" />
+                Filters
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Page Content */}
         <div className="p-6 bg-transparent">
           {/* Page Header */}
@@ -355,7 +437,7 @@ export default function VoucherListPage() {
                 placeholder="Search by name, redemption code or groupon no."
                 className="pl-10 pr-4 py-2 border border-gray-300 radius-8 w-full"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={handleSearch}
               />
             </div>
 
@@ -385,14 +467,15 @@ export default function VoucherListPage() {
 
           {/* Voucher Cards */}
           <div className="space-y-4">
-            {filteredVouchers.map((voucher) => (
-              <VoucherCard
-                key={voucher.id}
-                voucher={voucher}
-                searchQuery={searchQuery}
-                isSelected={voucher.id === selectedVoucherId}
-                onSelect={handleSelectVoucher}
-              />
+            {filteredVouchers.map((voucher, index) => (
+              <div key={voucher.id} ref={index === 0 ? firstVoucherRef : null}>
+                <VoucherCard
+                  voucher={voucher}
+                  searchQuery={searchQuery}
+                  isSelected={voucher.id === selectedVoucherId}
+                  onSelect={handleSelectVoucher}
+                />
+              </div>
             ))}
           </div>
         </div>
@@ -403,14 +486,19 @@ export default function VoucherListPage() {
         <div
           ref={overlayRef}
           className="fixed inset-0 bg-black bg-opacity-30 z-50 flex justify-end"
-          style={{ backdropFilter: "blur(2px)" }}
+          style={{
+            backdropFilter: "blur(2px)",
+            opacity: isDetailOpen ? 1 : 0,
+            transition: "opacity 300ms ease-out",
+          }}
         >
           <div
             ref={detailRef}
             className="bg-white h-full shadow-xl min-w-[360px] max-w-[768px] w-1/3 overflow-auto"
             style={{
               transform: isDetailOpen ? "translateX(0)" : "translateX(100%)",
-              transition: "transform 300ms ease-out",
+              transition: "transform 300ms ease-out, opacity 300ms ease-out",
+              opacity: isDetailOpen ? 1 : 0,
             }}
           >
             {/* Detail Header */}
