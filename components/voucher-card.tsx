@@ -13,6 +13,7 @@ interface VoucherCardProps {
     badges: string[]
     status: string
     purchaseDate: string
+    expirationDate: string
     statusDate?: string
   }
   searchQuery?: string
@@ -21,6 +22,7 @@ interface VoucherCardProps {
 }
 
 export default function VoucherCard({ voucher, searchQuery = "", isSelected = false, onSelect }: VoucherCardProps) {
+  // Function to determine status color based on status type
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Unredeemed":
@@ -36,6 +38,7 @@ export default function VoucherCard({ voucher, searchQuery = "", isSelected = fa
     }
   }
 
+  // Function to determine badge color based on badge type
   const getBadgeColor = (type: string) => {
     switch (type) {
       case "Promo":
@@ -47,7 +50,7 @@ export default function VoucherCard({ voucher, searchQuery = "", isSelected = fa
     }
   }
 
-  // Function to highlight search text
+  // Function to highlight search text in customer name and voucher number
   const highlightText = (text: string, query: string) => {
     if (!query || query.trim() === "") return text
 
@@ -66,27 +69,39 @@ export default function VoucherCard({ voucher, searchQuery = "", isSelected = fa
     })
   }
 
+  // Determine border style based on selection state
+  const borderStyle = isSelected
+    ? "border-[#0077D9] border-2 card-hover-shadow"
+    : "border border-solid border-[rgba(0,0,0,0.08)] hover:border-[#0077D9] hover:card-hover-shadow"
+
   return (
     <div
-      className={`rounded-xl border-2 p-3 relative transition-all duration-200 ease-in-out cursor-pointer
-        ${isSelected ? "border-[#0077D9] border-2 card-hover-shadow" : "hover:border-[#0077D9] hover:card-hover-shadow"}`}
+      className={`radius-12 bg-white p-3 relative transition-all duration-200 ease-in-out cursor-pointer ${borderStyle}`}
       onClick={() => onSelect(voucher.id)}
     >
+      {/* Card header with customer name and purchase date */}
       <div className="flex justify-between mb-2">
         <h3 className="text-md-bold">{highlightText(voucher.customerName, searchQuery)}</h3>
         <span className="text-xxs text-gray-500">{voucher.purchaseDate}</span>
       </div>
 
       <div className="flex items-end gap-4 w-full">
+        {/* Left content with campaign details */}
         <div className="flex-1 flex flex-col gap-1">
+          {/* Campaign name with 2-line ellipsis */}
           <p className="text-xxs text-gray-600 line-clamp-2">{voucher.campaignName}</p>
+
+          {/* Option name with 2-line ellipsis */}
           <p className="text-xxs-bold line-clamp-2">{voucher.optionName}</p>
 
+          {/* Voucher number and badges */}
           <div className="flex items-center mt-1 space-x-2">
-            <span className="text-mono-xxs bg-level3 px-1 py-0.5 rounded">
+            {/* Voucher number with special styling */}
+            <span className="text-mono-xxs bg-level3 px-1 py-0.5 radius-4">
               {highlightText(voucher.voucherNumber, searchQuery)}
             </span>
 
+            {/* Badge container */}
             <div className="flex space-x-2">
               {voucher.badges.map((badge, index) => (
                 <Badge key={index} className={`${getBadgeColor(badge)} border-none text-xxs-bold`}>
@@ -121,7 +136,7 @@ export default function VoucherCard({ voucher, searchQuery = "", isSelected = fa
           </div>
         </div>
 
-        {/* Right Status */}
+        {/* Right Status container */}
         <div
           className={`w-36 flex flex-col items-center justify-center p-3 rounded-lg gap-1 ${getStatusColor(
             voucher.status,
@@ -132,17 +147,13 @@ export default function VoucherCard({ voucher, searchQuery = "", isSelected = fa
             {voucher.statusDate && <div className="text-xxs">{voucher.statusDate}</div>}
           </div>
 
+          {/* Redeem button for unredeemed vouchers */}
           {voucher.status === "Unredeemed" && (
             <button className="mt-1 text-[#0077D9] text-xxs-bold flex items-center">
               Redeem
               <ChevronRight className="w-4 h-4 ml-1" />
             </button>
           )}
-        </div>
-
-        {/* Chevron - positioned in the center right */}
-        <div className="flex items-center justify-center absolute right-3 top-1/2 transform -translate-y-1/2">
-          <ChevronRight className="w-5 h-5 text-gray-400" />
         </div>
       </div>
     </div>

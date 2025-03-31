@@ -13,6 +13,7 @@
 }
 
 @layer components {
+  /* Typography classes */
   .text-md-bold {
     font-family: "Nunito Sans", sans-serif;
     font-weight: 700;
@@ -85,6 +86,7 @@
     letter-spacing: 0;
   }
 
+  /* Border and background classes */
   .border-2 {
     border: 1px solid rgba(0, 0, 0, 0.08);
   }
@@ -95,6 +97,67 @@
 
   .card-hover-shadow {
     box-shadow: 0px 4px 28px -6px rgba(8, 14, 28, 0.15);
+  }
+
+  /* Border radius classes */
+  .radius-2 {
+    border-radius: 2px;
+  }
+
+  .radius-4 {
+    border-radius: 4px;
+  }
+
+  .radius-6 {
+    border-radius: 6px;
+  }
+
+  .radius-8 {
+    border-radius: 8px;
+  }
+
+  .radius-12 {
+    border-radius: 12px;
+  }
+
+  .radius-16 {
+    border-radius: 16px;
+  }
+
+  .radius-20 {
+    border-radius: 20px;
+  }
+
+  .radius-24 {
+    border-radius: 24px;
+  }
+
+  .radius-28 {
+    border-radius: 28px;
+  }
+
+  .radius-32 {
+    border-radius: 32px;
+  }
+
+  .radius-36 {
+    border-radius: 36px;
+  }
+
+  .radius-40 {
+    border-radius: 40px;
+  }
+
+  .radius-48 {
+    border-radius: 48px;
+  }
+
+  .radius-56 {
+    border-radius: 56px;
+  }
+
+  .radius-64 {
+    border-radius: 64px;
   }
 }
 
