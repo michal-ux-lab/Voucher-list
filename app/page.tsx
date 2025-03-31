@@ -119,6 +119,11 @@ const generateRandomVoucher = (id) => {
   const randomStatus = statusOptions[Math.floor(Math.random() * statusOptions.length)]
   const randomBadges = []
 
+  // Generate random 10-digit voucher code for redeemed vouchers
+  const voucherCode = randomStatus === "Redeemed" 
+    ? Math.floor(Math.random() * 9000000000) + 1000000000 
+    : null
+
   // Randomly add badges
   if (Math.random() > 0.5) {
     randomBadges.push(badgeOptions[Math.floor(Math.random() * badgeOptions.length)])
@@ -143,6 +148,7 @@ const generateRandomVoucher = (id) => {
     campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
     optionName: optionNames[Math.floor(Math.random() * optionNames.length)],
     voucherNumber: generateVoucherNumber(),
+    voucherCode,
     badges: randomBadges,
     status: randomStatus,
     purchaseDate: "Purchased " + getDisplayDate(purchaseDate),
@@ -152,13 +158,17 @@ const generateRandomVoucher = (id) => {
 }
 
 export default function VoucherListPage() {
-  // Generate all 27 vouchers with random data
-  const allVouchers = Array.from({ length: 27 }, (_, i) => generateRandomVoucher(i + 1))
+  // Generate all 27 vouchers with random data - move to state
+  const [allVouchers] = useState(() => 
+    Array.from({ length: 27 }, (_, i) => generateRandomVoucher(i + 1))
+  )
 
   const [searchQuery, setSearchQuery] = useState("")
   const [filteredVouchers, setFilteredVouchers] = useState(allVouchers)
   const [selectedVoucherId, setSelectedVoucherId] = useState<number | null>(null)
+  const [selectedVoucherData, setSelectedVoucherData] = useState<typeof allVouchers[0] | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
+  const [isDetailAnimating, setIsDetailAnimating] = useState(false)
   const detailRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
 
@@ -167,8 +177,9 @@ export default function VoucherListPage() {
   const firstVoucherRef = useRef<HTMLDivElement>(null)
   const headerObserverRef = useRef<IntersectionObserver | null>(null)
 
-  // Get the selected voucher details
-  const selectedVoucher = allVouchers.find((v) => v.id === selectedVoucherId)
+  const [detailWidth, setDetailWidth] = useState(480) // Default width
+  const [isResizing, setIsResizing] = useState(false)
+  const resizeRef = useRef<HTMLDivElement>(null)
 
   // Filter vouchers based on search query
   useEffect(() => {
@@ -184,19 +195,17 @@ export default function VoucherListPage() {
         voucher.voucherNumber.toLowerCase().includes(lowercaseQuery),
     )
     setFilteredVouchers(filtered)
-  }, [searchQuery])
+  }, [searchQuery, allVouchers])
 
   // Handle click outside to close detail panel
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         isDetailOpen &&
-        detailRef.current &&
-        !detailRef.current.contains(event.target as Node) &&
         overlayRef.current &&
-        overlayRef.current.contains(event.target as Node)
+        event.target === overlayRef.current // Only close when clicking the overlay background
       ) {
-        setIsDetailOpen(false)
+        closeDetail()
       }
     }
 
@@ -232,25 +241,63 @@ export default function VoucherListPage() {
   }, [])
 
   const handleSelectVoucher = (id: number) => {
-    setSelectedVoucherId(id)
-    setIsDetailOpen(true)
+    const voucher = allVouchers.find((v) => v.id === id)
+    if (voucher) {
+      setSelectedVoucherId(id)
+      setSelectedVoucherData(voucher)
+      
+      if (!isDetailOpen) {
+        setIsDetailOpen(true)
+        requestAnimationFrame(() => {
+          setIsDetailAnimating(true)
+        })
+      }
+    }
   }
 
   const closeDetail = () => {
-    // First set a state to trigger the animation
-    const detailElement = detailRef.current
-    if (detailElement) {
-      detailElement.style.transform = "translateX(100%)"
-      detailElement.style.opacity = "0"
-
-      // After animation completes, actually close the panel
-      setTimeout(() => {
-        setIsDetailOpen(false)
-      }, 300)
-    } else {
+    setIsDetailAnimating(false)
+    // After animation completes, close the panel and clear selection
+    setTimeout(() => {
       setIsDetailOpen(false)
-    }
+      setSelectedVoucherId(null)
+      setSelectedVoucherData(null)
+    }, 300)
   }
+
+  // Handle mouse down on resize handle
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsResizing(true)
+  }
+
+  // Handle mouse move while resizing
+  useEffect(() => {
+    const handleResize = (e: MouseEvent) => {
+      if (!isResizing) return
+
+      const windowWidth = window.innerWidth
+      const newWidth = windowWidth - e.clientX
+      
+      // Constrain width between min and max
+      const constrainedWidth = Math.min(Math.max(newWidth, 360), 768)
+      setDetailWidth(constrainedWidth)
+    }
+
+    const handleResizeEnd = () => {
+      setIsResizing(false)
+    }
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleResize)
+      document.addEventListener('mouseup', handleResizeEnd)
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleResize)
+      document.removeEventListener('mouseup', handleResizeEnd)
+    }
+  }, [isResizing])
 
   return (
     <div className="flex bg-white min-h-screen">
@@ -323,7 +370,14 @@ export default function VoucherListPage() {
       </aside>
 
       {/* Main Content - With left margin to account for fixed sidebar */}
-      <main className="flex-1 ml-[210px] overflow-auto">
+      <main 
+        className="flex-1 ml-[210px] overflow-auto"
+        onClick={(e) => {
+          if (isDetailOpen && e.target === e.currentTarget) {
+            closeDetail()
+          }
+        }}
+      >
         {/* Top Action Bar - Sticky */}
         <div className="bg-white border-b border-gray-200 p-4 flex justify-end items-center space-x-3 sticky top-0 z-10">
           <Button className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2 rounded-full text-xs-bold !text-white">
@@ -483,97 +537,169 @@ export default function VoucherListPage() {
 
       {/* Voucher Detail Overlay */}
       {isDetailOpen && (
-        <div
-          ref={overlayRef}
-          className="fixed inset-0 bg-black bg-opacity-30 z-50 flex justify-end"
-          style={{
-            backdropFilter: "blur(2px)",
-            opacity: isDetailOpen ? 1 : 0,
-            transition: "opacity 300ms ease-out",
-          }}
-        >
+        <div className="fixed inset-0 z-50 flex justify-end pointer-events-none">
           <div
             ref={detailRef}
-            className="bg-white h-full shadow-xl min-w-[360px] max-w-[768px] w-1/3 overflow-auto"
+            className="bg-white h-full shadow-xl overflow-hidden pointer-events-auto flex flex-col border-l relative"
             style={{
-              transform: isDetailOpen ? "translateX(0)" : "translateX(100%)",
+              width: detailWidth,
+              minWidth: 360,
+              maxWidth: 768,
+              transform: isDetailAnimating ? "translateX(0)" : "translateX(100%)",
               transition: "transform 300ms ease-out, opacity 300ms ease-out",
-              opacity: isDetailOpen ? 1 : 0,
+              opacity: isDetailAnimating ? 1 : 0,
             }}
           >
-            {/* Detail Header */}
-            <div className="p-4 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10">
-              <h2 className="text-xl font-bold">Voucher Detail</h2>
+            {/* Resize Handle */}
+            <div
+              ref={resizeRef}
+              className="absolute left-0 top-0 w-1 h-full cursor-ew-resize hover:bg-gray-200 transition-colors"
+              onMouseDown={handleResizeStart}
+            />
+
+            {/* Detail Header - Sticky */}
+            <div className="px-6 py-4 border-b flex justify-between items-center sticky top-0 bg-white z-10">
+              <h2 className="text-sm">{selectedVoucherData?.voucherNumber}</h2>
               <Button variant="ghost" size="icon" className="rounded-full" onClick={closeDetail}>
                 <X className="h-5 w-5" />
               </Button>
             </div>
 
-            {/* Detail Content */}
-            {selectedVoucher && (
-              <div className="p-6">
-                <div className="mb-6">
-                  <h3 className="text-md-bold mb-1">{selectedVoucher.customerName}</h3>
-                  <p className="text-sm text-gray-500">{selectedVoucher.purchaseDate}</p>
-                </div>
-
-                <div className="mb-6">
-                  <h4 className="text-sm-bold mb-2">Campaign</h4>
-                  <p className="text-xs text-gray-600 mb-2">{selectedVoucher.campaignName}</p>
-                  <p className="text-xs-bold">{selectedVoucher.optionName}</p>
-                </div>
-
-                <div className="mb-6">
-                  <h4 className="text-sm-bold mb-2">Voucher Information</h4>
-                  <div className="flex flex-col space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-xs text-gray-600">Voucher Number:</span>
-                      <span className="text-mono-xxs bg-level3 px-2 py-1 radius-4">
-                        {selectedVoucher.voucherNumber}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-xs text-gray-600">Status:</span>
-                      <span className="text-xs-bold">{selectedVoucher.status}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-xs text-gray-600">Expiration Date:</span>
-                      <span className="text-xs">{selectedVoucher.expirationDate}</span>
-                    </div>
-                    {selectedVoucher.statusDate && (
-                      <div className="flex justify-between">
-                        <span className="text-xs text-gray-600">Status Date:</span>
-                        <span className="text-xs">{selectedVoucher.statusDate}</span>
+            {/* Detail Content - Scrollable */}
+            <div className="flex-1 overflow-y-auto scrollbar-hide">
+              {selectedVoucherData && (
+                <>
+                  {/* Details Section */}
+                  <div className="p-6 space-y-3">
+                    {/* Option Header with Thumbnail */}
+                    <div className="flex items-start gap-4 mb-6">
+                      <div className="w-16 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                        <img
+                          src={`/treatment-images/${selectedVoucherData.optionName.toLowerCase().includes('underarms') ? 'underarms' : 
+                            selectedVoucherData.optionName.toLowerCase().includes('legs') ? 'legs' :
+                            selectedVoucherData.optionName.toLowerCase().includes('bikini') ? 'bikini' :
+                            selectedVoucherData.optionName.toLowerCase().includes('face') ? 'face' : 'back'}.jpg`}
+                          alt={selectedVoucherData.optionName}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
-                    )}
-                  </div>
-                </div>
+                      <div className="flex-1">
+                        <h3 className="text-md">{selectedVoucherData.optionName}</h3>
+                      </div>
+                    </div>
 
-                {selectedVoucher.badges.length > 0 && (
-                  <div className="mb-6">
-                    <h4 className="text-sm-bold mb-2">Badges</h4>
-                    <div className="flex space-x-2">
-                      {selectedVoucher.badges.map((badge, index) => (
-                        <Badge
-                          key={index}
-                          className={`${
-                            badge === "Promo" ? "bg-purple-100 text-purple-600" : "bg-pink-100 text-pink-600"
-                          } border-none text-xxs-bold`}
+                    {/* Status Section - Placeholder for now */}
+                    <div className="mb-6">
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium
+                          ${selectedVoucherData.status === 'Unredeemed' ? 'bg-blue-100 text-blue-700' :
+                            selectedVoucherData.status === 'Redeemed' ? 'bg-green-100 text-green-700' :
+                            selectedVoucherData.status === 'Expired' ? 'bg-gray-100 text-gray-700' :
+                            'bg-red-100 text-red-700'}`}
                         >
-                          {badge}
-                        </Badge>
-                      ))}
+                          {selectedVoucherData.status}
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          expires {selectedVoucherData.expirationDate}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Voucher Details Section */}
+                    <div>
+                      <h4 className="text-md-bold mb-4">Voucher details</h4>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Customer:</span>
+                          <span className="text-sm-bold">{selectedVoucherData.customerName}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Purchase date:</span>
+                          <span className="text-sm">{selectedVoucherData.purchaseDate.replace('Purchased ', '')}</span>
+                        </div>
+                        {selectedVoucherData.badges.length > 0 && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Sold as:</span>
+                            <div className="flex gap-2">
+                              {selectedVoucherData.badges.map((badge, index) => (
+                                <Badge
+                                  key={index}
+                                  className={`${
+                                    badge === "Promo" ? "bg-purple-100 text-purple-600" : "bg-pink-100 text-pink-600"
+                                  } border-none text-xxs-bold`}
+                                >
+                                  {badge}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Groupon number:</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-mono-xxs bg-gray-100 px-2 py-1 rounded">
+                              {selectedVoucherData.voucherNumber}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={() => navigator.clipboard.writeText(selectedVoucherData.voucherNumber)}
+                            >
+                              <Image src="/icons/duplicate.svg" width={14} height={14} alt="Copy" />
+                            </Button>
+                          </div>
+                        </div>
+                        {/* Voucher code row - only show for redeemed vouchers */}
+                        {selectedVoucherData.status === "Redeemed" && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Voucher code:</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-mono-xxs bg-gray-100 px-2 py-1 rounded">
+                                {selectedVoucherData.voucherCode}
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => navigator.clipboard.writeText(selectedVoucherData.voucherCode?.toString() || "")}
+                              >
+                                <Image src="/icons/duplicate.svg" width={14} height={14} alt="Copy" />
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Campaign:</span>
+                          <span className="text-sm text-right flex-1 ml-4">{selectedVoucherData.campaignName}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Option:</span>
+                          <span className="text-sm text-right flex-1 ml-4">{selectedVoucherData.optionName}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Location:</span>
+                          <span className="text-sm text-right">500 Davis Street, Suite 810, Evanston</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                )}
 
-                {selectedVoucher.status === "Unredeemed" && (
-                  <div className="mt-8">
-                    <Button className="bg-green-600 hover:bg-green-700 text-white w-full rounded-full text-sm-bold">
-                      Redeem Voucher
-                    </Button>
+                  {/* Timeline Section */}
+                  <div className="p-6 border-t">
+                    <h4 className="text-md-bold mb-4">Timeline</h4>
+                    {/* Timeline content will be added later */}
                   </div>
-                )}
+                </>
+              )}
+            </div>
+
+            {/* Redemption Section - Sticky Bottom */}
+            {selectedVoucherData?.status === "Unredeemed" && (
+              <div className="px-6 py-4 border-t sticky bottom-0 bg-white">
+                <Button className="bg-green-600 hover:bg-green-700 text-white w-full rounded-full text-sm-bold">
+                  Redeem Voucher
+                </Button>
               </div>
             )}
           </div>
