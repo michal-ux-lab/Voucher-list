@@ -11,6 +11,8 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import VoucherCard from "@/components/voucher-card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import SideNavigation from "@/components/side-navigation"
+import PageTop from "@/components/page-top"
 
 // Function to generate a random voucher number
 const generateVoucherNumber = () => {
@@ -29,18 +31,22 @@ const generateVoucherNumber = () => {
 }
 
 // Function to generate a random date within a range
-const getRandomDate = (start, end) => {
+const getRandomDate = (start: Date, end: Date) => {
   return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
 }
 
 // Function to format date as "MMM DD, YYYY"
-const formatDate = (date) => {
-  const options = { year: "numeric", month: "short", day: "numeric" }
+const formatDate = (date: Date) => {
+  const options: Intl.DateTimeFormatOptions = { 
+    year: "numeric" as const, 
+    month: "short" as const, 
+    day: "numeric" as const 
+  }
   return date.toLocaleDateString("en-US", options)
 }
 
 // Function to get a display date (Today, Yesterday, or formatted date)
-const getDisplayDate = (date) => {
+const getDisplayDate = (date: Date) => {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
@@ -114,8 +120,26 @@ const endPurchaseDate = new Date() // Today
 const startExpirationDate = new Date(2023, 6, 1) // July 1, 2023
 const endExpirationDate = new Date(2025, 11, 31) // Dec 31, 2025
 
+// Add treatment thumbnail mapping with actual image paths
+const treatmentThumbnails = {
+  underarms: "/treatment-images/underarms.jpg",
+  legs: "/treatment-images/legs.jpg",
+  bikini: "/treatment-images/bikini.jpg",
+  face: "/treatment-images/face.jpg",
+  back: "/treatment-images/back.jpg"
+}
+
+const getTreatmentType = (optionName: string) => {
+  const name = optionName.toLowerCase()
+  if (name.includes('underarms')) return 'underarms'
+  if (name.includes('legs')) return 'legs'
+  if (name.includes('bikini')) return 'bikini'
+  if (name.includes('face')) return 'face'
+  return 'back'
+}
+
 // Generate a random voucher
-const generateRandomVoucher = (id) => {
+const generateRandomVoucher = (id: number) => {
   const randomStatus = statusOptions[Math.floor(Math.random() * statusOptions.length)]
   const randomBadges = []
 
@@ -220,9 +244,15 @@ export default function VoucherListPage() {
     if (firstVoucherRef.current) {
       headerObserverRef.current = new IntersectionObserver(
         ([entry]) => {
-          setShowStickyHeader(!entry.isIntersecting)
+          // Add a small delay to ensure smooth transition
+          setTimeout(() => {
+            setShowStickyHeader(!entry.isIntersecting)
+          }, 100)
         },
-        { threshold: 0 },
+        { 
+          threshold: 0,
+          rootMargin: '-73px 0px 0px 0px' // Account for the top bar height
+        }
       )
 
       headerObserverRef.current.observe(firstVoucherRef.current)
@@ -300,185 +330,12 @@ export default function VoucherListPage() {
   }, [isResizing])
 
   return (
-    <div className="flex bg-white min-h-screen">
-      {/* Left Sidebar Navigation - Fixed */}
-      <aside className="w-[210px] bg-white border-r border-gray-200 flex flex-col fixed top-0 left-0 h-screen z-10">
-        {/* Logo container */}
-        <div className="px-4">
-          <Image src="/logo.svg" alt="Logo" width={72} height={75} className="text-green-600" />
-        </div>
-
-        {/* Navigation menu */}
-        <nav className="flex flex-col flex-1 p-2 space-y-1 overflow-y-auto">
-          <NavItem icon={<Image src="/icons/home.svg" width={16} height={16} alt="Home icon" />} label="Home" />
-          <NavItem
-            icon={<Image src="/icons/campaigns.svg" width={16} height={16} alt="Campaigns icon" />}
-            label="Campaigns"
-            hasDropdown
-          />
-          <NavItem
-            icon={<Image src="/icons/roi.svg" width={16} height={16} alt="ROI icon" />}
-            label="Sponsored Campaigns"
-          />
-          <NavItem
-            icon={<Image src="/icons/voucher-list.svg" width={16} height={16} alt="Voucher list icon" />}
-            label="Voucher List"
-            active
-          />
-          <NavItem
-            icon={<Image src="/icons/feedback.svg" width={16} height={16} alt="Feedback icon" />}
-            label="Feedback"
-          />
-          <NavItem
-            icon={<Image src="/icons/demographics.svg" width={16} height={16} alt="Demographics icon" />}
-            label="Demographics"
-          />
-          <NavItem
-            icon={<Image src="/icons/payments.svg" width={16} height={16} alt="Payments icon" />}
-            label="Payments"
-          />
-          <NavItem
-            icon={<Image src="/icons/connections.svg" width={16} height={16} alt="Connections icon" />}
-            label="Connections"
-          />
-          <NavItem icon={<Image src="/icons/help.svg" width={16} height={16} alt="Help icon" />} label="Support" />
-          <NavItem icon={<Image src="/icons/admin.svg" width={16} height={16} alt="Admin icon" />} label="Admin" />
-        </nav>
-
-        {/* Company info footer */}
-        <div className="p-4 border-t border-gray-200 flex items-center">
-          <div className="flex-1">
-            <p className="text-xs text-gray-500">Valvoline Instant Oil</p>
-            <p className="text-xs text-gray-500">Change - Ivy Lane Corp</p>
-          </div>
-          <button className="text-gray-400">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M9 18l6-6-6-6" />
-            </svg>
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Content - With left margin to account for fixed sidebar */}
-      <main 
-        className="flex-1 ml-[210px] overflow-auto"
-        onClick={(e) => {
-          if (isDetailOpen && e.target === e.currentTarget) {
-            closeDetail()
-          }
-        }}
-      >
-        {/* Top Action Bar - Sticky */}
-        <div className="bg-white border-b border-gray-200 p-4 flex justify-end items-center space-x-3 sticky top-0 z-10">
-          <Button className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2 rounded-full text-xs-bold !text-white">
-            <Image src="/icons/redemption.svg" width={16} height={16} alt="Redemption icon" />
-            Redeem
-          </Button>
-
-          <Button
-            variant="outline"
-            className="bg-white text-gray-700 border-gray-300 flex items-center gap-2 rounded-full text-xs-bold"
-          >
-            <Image src="/icons/add.svg" width={16} height={16} alt="Add icon" />
-            New Campaign
-          </Button>
-
-          <Button
-            variant="outline"
-            className="bg-white text-gray-700 border-gray-300 p-2 w-10 h-10 flex items-center justify-center rounded-full"
-          >
-            <Image src="/icons/send.svg" width={16} height={16} alt="Send icon" />
-          </Button>
-
-          <div className="relative">
-            <Button
-              variant="outline"
-              className="bg-white text-gray-700 border-gray-300 p-2 w-10 h-10 flex items-center justify-center rounded-full"
-            >
-              <Image src="/icons/notification.svg" width={16} height={16} alt="Notification icon" />
-            </Button>
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-              24
-            </span>
-          </div>
-        </div>
-
-        {/* Sticky Header - Appears when scrolling past first voucher */}
-        {showStickyHeader && (
-          <div className="sticky top-[72px] z-10 bg-white border-b border-2 py-4 px-6 flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Voucher list</h1>
-            <div className="w-[480px] flex items-center space-x-3">
-              <div className="flex-1 relative">
-                {/* Search icon */}
-                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                  <Image src="/icons/search.svg" width={16} height={16} alt="Search icon" />
-                </div>
-
-                {/* Search input */}
-                <Input
-                  type="text"
-                  placeholder="Search by name, redemption code or groupon no."
-                  className="pl-10 pr-4 py-2 border border-gray-300 radius-8 w-full"
-                  value={searchQuery}
-                  onChange={handleSearch}
-                />
-              </div>
-
-              {/* Search button */}
-              <Button className="bg-gray-900 hover:bg-gray-800 text-white text-sm-bold !text-white radius-8">
-                Search
-              </Button>
-
-              {/* Filters button */}
-              <Button
-                variant="outline"
-                className="bg-white text-gray-700 border-gray-300 flex items-center gap-2 text-sm-bold radius-8"
-              >
-                <Image src="/icons/filter.svg" width={20} height={20} alt="Filter icon" />
-                Filters
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Page Content */}
-        <div className="p-6 bg-transparent">
-          {/* Page Header */}
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Voucher list</h1>
-            <div className="flex items-center space-x-3">
-              {/* Export report button */}
-              <Button variant="ghost" className="bg-white text-gray-700 flex items-center gap-2 text-xxs-bold">
-                <FileText className="w-4 h-4" />
-                Export report
-              </Button>
-
-              {/* Tour the page button */}
-              <Button variant="ghost" className="bg-white text-gray-700 flex items-center gap-2 text-xxs-bold">
-                <Image src="/icons/map.svg" width={14} height={14} alt="Map icon" />
-                Tour the page
-              </Button>
-
-              {/* Print page button */}
-              <Button variant="ghost" className="bg-white text-gray-700 flex items-center gap-2 text-xxs-bold">
-                <Image src="/icons/printer.svg" width={14} height={14} alt="Printer icon" />
-                Print page
-              </Button>
-            </div>
-          </div>
-
-          {/* Search and Filter */}
-          <div className="flex items-center space-x-3 mb-6">
+    <PageTop activePage="Voucher List">
+      {/* Remove duplicated action bar and start with sticky header */}
+      {showStickyHeader && (
+        <div className="sticky top-[73px] z-20 bg-white border-b border-2 py-4 px-6 flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Voucher list</h1>
+          <div className="w-[480px] flex items-center space-x-3">
             <div className="flex-1 relative">
               {/* Search icon */}
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -489,10 +346,20 @@ export default function VoucherListPage() {
               <Input
                 type="text"
                 placeholder="Search by name, redemption code or groupon no."
-                className="pl-10 pr-4 py-2 border border-gray-300 radius-8 w-full"
+                className="pl-10 pr-9 py-2 border border-gray-300 radius-8 w-full"
                 value={searchQuery}
                 onChange={handleSearch}
               />
+
+              {/* Clear button */}
+              {searchQuery && (
+                <button
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  onClick={() => setSearchQuery("")}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
 
             {/* Search button */}
@@ -509,31 +376,101 @@ export default function VoucherListPage() {
               Filters
             </Button>
           </div>
+        </div>
+      )}
 
-          {/* Voucher Count and Sort */}
-          <div className="flex justify-between items-center mb-4">
-            <div className="text-gray-600 text-sm">{filteredVouchers.length} vouchers</div>
-            <div className="flex items-center space-x-2">
-              <span className="text-gray-600 text-sm">Sort by Last purchases</span>
-              <ChevronDown className="w-4 h-4 text-gray-600" />
-            </div>
-          </div>
+      {/* Page Content */}
+      <div className="p-6 bg-transparent">
+        {/* Page Header */}
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Voucher list</h1>
+          <div className="flex items-center space-x-3">
+            {/* Export report button */}
+            <Button variant="ghost" className="bg-white text-gray-700 flex items-center gap-2 text-xxs-bold">
+              <FileText className="w-4 h-4" />
+              Export report
+            </Button>
 
-          {/* Voucher Cards */}
-          <div className="space-y-4">
-            {filteredVouchers.map((voucher, index) => (
-              <div key={voucher.id} ref={index === 0 ? firstVoucherRef : null}>
-                <VoucherCard
-                  voucher={voucher}
-                  searchQuery={searchQuery}
-                  isSelected={voucher.id === selectedVoucherId}
-                  onSelect={handleSelectVoucher}
-                />
-              </div>
-            ))}
+            {/* Tour the page button */}
+            <Button variant="ghost" className="bg-white text-gray-700 flex items-center gap-2 text-xxs-bold">
+              <Image src="/icons/map.svg" width={14} height={14} alt="Map icon" />
+              Tour the page
+            </Button>
+
+            {/* Print page button */}
+            <Button variant="ghost" className="bg-white text-gray-700 flex items-center gap-2 text-xxs-bold">
+              <Image src="/icons/printer.svg" width={14} height={14} alt="Printer icon" />
+              Print page
+            </Button>
           </div>
         </div>
-      </main>
+
+        {/* Search and Filter */}
+        <div className="flex items-center space-x-3 mb-6">
+          <div className="flex-1 relative">
+            {/* Search icon */}
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <Image src="/icons/search.svg" width={16} height={16} alt="Search icon" />
+            </div>
+
+            {/* Search input */}
+            <Input
+              type="text"
+              placeholder="Search by name, redemption code or groupon no."
+              className="pl-10 pr-9 py-2 border border-gray-300 radius-8 w-full"
+              value={searchQuery}
+              onChange={handleSearch}
+            />
+
+            {/* Clear button */}
+            {searchQuery && (
+              <button
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                onClick={() => setSearchQuery("")}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Search button */}
+          <Button className="bg-gray-900 hover:bg-gray-800 text-white text-sm-bold !text-white radius-8">
+            Search
+          </Button>
+
+          {/* Filters button */}
+          <Button
+            variant="outline"
+            className="bg-white text-gray-700 border-gray-300 flex items-center gap-2 text-sm-bold radius-8"
+          >
+            <Image src="/icons/filter.svg" width={20} height={20} alt="Filter icon" />
+            Filters
+          </Button>
+        </div>
+
+        {/* Voucher Count and Sort */}
+        <div className="flex justify-between items-center mb-4">
+          <div className="text-gray-600 text-sm">{filteredVouchers.length} vouchers</div>
+          <div className="flex items-center space-x-2">
+            <span className="text-gray-600 text-sm">Sort by Last purchases</span>
+            <ChevronDown className="w-4 h-4 text-gray-600" />
+          </div>
+        </div>
+
+        {/* Voucher Cards */}
+        <div className="space-y-4">
+          {filteredVouchers.map((voucher, index) => (
+            <div key={voucher.id} ref={index === 0 ? firstVoucherRef : null}>
+              <VoucherCard
+                voucher={voucher}
+                searchQuery={searchQuery}
+                isSelected={voucher.id === selectedVoucherId}
+                onSelect={handleSelectVoucher}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Voucher Detail Overlay */}
       {isDetailOpen && (
@@ -573,14 +510,12 @@ export default function VoucherListPage() {
                   <div className="p-6 space-y-3">
                     {/* Option Header with Thumbnail */}
                     <div className="flex items-start gap-4 mb-6">
-                      <div className="w-16 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                        <img
-                          src={`/treatment-images/${selectedVoucherData.optionName.toLowerCase().includes('underarms') ? 'underarms' : 
-                            selectedVoucherData.optionName.toLowerCase().includes('legs') ? 'legs' :
-                            selectedVoucherData.optionName.toLowerCase().includes('bikini') ? 'bikini' :
-                            selectedVoucherData.optionName.toLowerCase().includes('face') ? 'face' : 'back'}.jpg`}
-                          alt={selectedVoucherData.optionName}
-                          className="w-full h-full object-cover"
+                      <div className="w-16 h-12 overflow-hidden bg-gray-100 flex-shrink-0 rounded border border-gray-200">
+                        <div 
+                          className="w-full h-full bg-cover bg-center bg-no-repeat rounded"
+                          style={{
+                            backgroundImage: `url(${treatmentThumbnails[getTreatmentType(selectedVoucherData.optionName)]})`
+                          }}
                         />
                       </div>
                       <div className="flex-1">
@@ -588,21 +523,44 @@ export default function VoucherListPage() {
                       </div>
                     </div>
 
-                    {/* Status Section - Placeholder for now */}
-                    <div className="mb-6">
-                      <div className="flex items-center gap-2">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium
-                          ${selectedVoucherData.status === 'Unredeemed' ? 'bg-blue-100 text-blue-700' :
-                            selectedVoucherData.status === 'Redeemed' ? 'bg-green-100 text-green-700' :
-                            selectedVoucherData.status === 'Expired' ? 'bg-gray-100 text-gray-700' :
-                            'bg-red-100 text-red-700'}`}
+                    {/* Status Section */}
+                    <div className={`p-[8px_12px] space-y-1 rounded-[8px] mb-6 
+                      ${selectedVoucherData.status === 'Unredeemed' ? 'bg-white border border-solid border-[rgba(0,0,0,0.08)]' :
+                        selectedVoucherData.status === 'Redeemed' ? 'bg-[#E5F3E9]' :
+                        selectedVoucherData.status === 'Expired' ? 'bg-[#FFF5E9]' :
+                        'bg-[#FFEDED]'}`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className={`text-sm-bold
+                          ${selectedVoucherData.status === 'Unredeemed' ? 'text-gray-900' :
+                            selectedVoucherData.status === 'Redeemed' ? 'text-[#006118]' :
+                            selectedVoucherData.status === 'Expired' ? 'text-[#7E4602]' :
+                            'text-[#B33434]'}`}
                         >
                           {selectedVoucherData.status}
                         </span>
-                        <span className="text-sm text-gray-500">
-                          expires {selectedVoucherData.expirationDate}
+                        <span className={`text-xxs
+                          ${selectedVoucherData.status === 'Unredeemed' ? 'text-gray-900' :
+                            selectedVoucherData.status === 'Redeemed' ? 'text-[#006118]' :
+                            selectedVoucherData.status === 'Expired' ? 'text-[#7E4602]' :
+                            'text-[#B33434]'}`}
+                        >
+                          {selectedVoucherData.status === 'Unredeemed' 
+                            ? `expires ${selectedVoucherData.expirationDate}`
+                            : selectedVoucherData.statusDate
+                          }
                         </span>
                       </div>
+                      
+                      {/* Additional text for Redeemed or Refunded status */}
+                      {(selectedVoucherData.status === 'Redeemed' || selectedVoucherData.status === 'Refunded') && (
+                        <div className="py-2 text-xs text-gray-600">
+                          {selectedVoucherData.status === 'Redeemed' 
+                            ? `Redeemed by ${['Customer', 'Merchant', 'Groupon'][Math.floor(Math.random() * 3)]}`
+                            : 'No Longer Want/Need this Reservation'
+                          }
+                        </div>
+                      )}
                     </div>
 
                     {/* Voucher Details Section */}
@@ -625,9 +583,31 @@ export default function VoucherListPage() {
                                 <Badge
                                   key={index}
                                   className={`${
-                                    badge === "Promo" ? "bg-purple-100 text-purple-600" : "bg-pink-100 text-pink-600"
+                                    badge === "Promo" 
+                                      ? "inline-flex items-start px-[6px] py-[2px] gap-1 bg-[#7E40B2] !text-white rounded" 
+                                      : "flex items-center px-[6px] py-[2px] gap-1 bg-[#F5EDFC] !text-[#6F389B] rounded"
                                   } border-none text-xxs-bold`}
                                 >
+                                  {badge === "Gift" && (
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="16"
+                                      height="16"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      className="mr-1 !text-[#6F389B]"
+                                    >
+                                      <path d="M20 12v10H4V12"></path>
+                                      <path d="M2 7h20v5H2z"></path>
+                                      <path d="M12 22V7"></path>
+                                      <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+                                      <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+                                    </svg>
+                                  )}
                                   {badge}
                                 </Badge>
                               ))}
@@ -705,20 +685,6 @@ export default function VoucherListPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageTop>
   )
 }
-
-function NavItem({ icon, label, active = false, hasDropdown = false }) {
-  return (
-    <Link
-      href={label === "Connections" ? "/connections" : label === "Voucher List" ? "/" : "#"}
-      className={`flex items-center space-x-3 px-3 py-2 rounded-md ${active ? "bg-gray-100" : "hover:bg-gray-50"}`}
-    >
-      <span className="text-gray-500">{icon}</span>
-      <span className="flex-1 font-sans font-bold text-sm leading-5">{label}</span>
-      {hasDropdown && <ChevronDown className="w-4 h-4 text-gray-400" />}
-    </Link>
-  )
-}
-

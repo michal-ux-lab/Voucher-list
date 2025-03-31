@@ -42,11 +42,11 @@ export default function VoucherCard({ voucher, searchQuery = "", isSelected = fa
   const getBadgeColor = (type: string) => {
     switch (type) {
       case "Promo":
-        return "bg-purple-100 text-purple-600 hover:bg-purple-100"
+        return "inline-flex items-start px-[6px] py-[2px] gap-1 bg-[#7E40B2] !text-white rounded"
       case "Gift":
-        return "bg-pink-100 text-pink-600 hover:bg-pink-100"
+        return "flex items-center px-[6px] py-[2px] gap-1 bg-[#F5EDFC] !text-[#6F389B] rounded"
       default:
-        return "bg-gray-100 text-gray-600 hover:bg-gray-100"
+        return "bg-gray-100 text-gray-600"
     }
   }
 
@@ -117,7 +117,7 @@ export default function VoucherCard({ voucher, searchQuery = "", isSelected = fa
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        className="mr-1"
+                        className="mr-1 !text-[#6F389B]"
                       >
                         <path d="M20 12v10H4V12"></path>
                         <path d="M2 7h20v5H2z"></path>
