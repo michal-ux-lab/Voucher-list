@@ -20,7 +20,7 @@ export default function PageTop({ children, activePage, showActionBar = true }: 
       {/* Main Content - With left margin to account for fixed sidebar */}
       <main className="flex-1 ml-[232px] overflow-auto">
         {showActionBar && (
-          <div className="bg-white border-b border-gray-200 p-4 flex justify-end items-center space-x-3">
+          <div className="bg-white border-b border-gray-200 p-4 flex justify-end items-center space-x-3 fixed top-0 left-[232px] right-0 z-30">
             <Button className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2 rounded-full text-xs-bold !text-white">
               <Image src="/icons/redemption.svg" width={16} height={16} alt="Redemption icon" />
               Redeem
@@ -54,6 +54,9 @@ export default function PageTop({ children, activePage, showActionBar = true }: 
             </div>
           </div>
         )}
+
+        {/* Add spacer for fixed header */}
+        {showActionBar && <div className="h-[73px]" />}
 
         {children}
       </main>

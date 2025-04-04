@@ -71,8 +71,8 @@ export default function VoucherCard({ voucher, searchQuery = "", isSelected = fa
 
   // Determine border style based on selection state
   const borderStyle = isSelected
-    ? "border-[#0077D9] border-2 card-hover-shadow"
-    : "border border-solid border-[rgba(0,0,0,0.08)] hover:border-[#0077D9] hover:card-hover-shadow"
+    ? "border-[#0077D9] border-2 shadow-[0px_4px_12px_0px_rgba(0,0,0,0.08)]"
+    : "border border-solid border-[rgba(0,0,0,0.08)] card-hover"
 
   return (
     <div

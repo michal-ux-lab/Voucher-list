@@ -14,113 +14,485 @@ import { Input } from "@/components/ui/input"
 import SideNavigation from "@/components/side-navigation"
 import PageTop from "@/components/page-top"
 
-// Function to generate a random voucher number
-const generateVoucherNumber = () => {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-  let result = "VS-"
-
-  // Generate 4 groups of 4 random characters
-  for (let i = 0; i < 4; i++) {
-    for (let j = 0; j < 4; j++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length))
-    }
-    if (i < 3) result += "-"
-  }
-
-  return result
-}
-
-// Function to generate a random date within a range
-const getRandomDate = (start: Date, end: Date) => {
-  return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
-}
-
-// Function to format date as "MMM DD, YYYY"
-const formatDate = (date: Date) => {
-  const options: Intl.DateTimeFormatOptions = { 
-    year: "numeric" as const, 
-    month: "short" as const, 
-    day: "numeric" as const 
-  }
-  return date.toLocaleDateString("en-US", options)
-}
-
-// Function to get a display date (Today, Yesterday, or formatted date)
-const getDisplayDate = (date: Date) => {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-
-  const yesterday = new Date(today)
-  yesterday.setDate(yesterday.getDate() - 1)
-
-  const compareDate = new Date(date)
-  compareDate.setHours(0, 0, 0, 0)
-
-  if (compareDate.getTime() === today.getTime()) {
-    return "Today"
-  } else if (compareDate.getTime() === yesterday.getTime()) {
-    return "Yesterday"
-  } else {
-    return formatDate(date)
-  }
-}
-
-// Random customer names
-const customerNames = [
-  "Lucas Mitchell",
-  "Guest user",
-  "Ethan Reynolds",
-  "Jane Doe",
-  "Noah Sullivan",
-  "Olivia Carter",
-  "Ava Harrison",
-  "William Johnson",
-  "Sophia Martinez",
-  "James Anderson",
-  "Emma Thomas",
-  "Benjamin Wilson",
-  "Isabella Jackson",
-  "Mason White",
-  "Charlotte Harris",
-  "Elijah Martin",
-  "Amelia Thompson",
-  "Alexander Garcia",
-  "Mia Robinson",
-  "Daniel Clark",
-  "Harper Lewis",
-  "Michael Lee",
-  "Evelyn Walker",
-  "Matthew Hall",
-  "Abigail Allen",
-  "David Young",
-  "Emily King",
-  "Joseph Wright",
-  "Elizabeth Scott",
-  "Samuel Green",
+// Static voucher data
+const allVouchersData = [
+  {
+    id: 1,
+    customerName: "Jane Doe",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Six Laser Hair Removal Underarms Sessions",
+    voucherNumber: "VS-A0K3-35NA-80Y4-K70T",
+    voucherCode: null,
+    badges: ["Gift"],
+    status: "Unredeemed",
+    purchaseDate: "Purchased Feb 13, 2024",
+    expirationDate: "Mar 13, 2024",
+    statusDate: undefined
+  },
+  {
+    id: 2,
+    customerName: "William Johnson",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Option: Six Laser Hair Removal Full Legs Sessions",
+    voucherNumber: "VS-B1K4-45NB-90Y5-L80U",
+    voucherCode: "1234567890",
+    badges: ["Promo"],
+    status: "Redeemed",
+    purchaseDate: "Purchased Jan 15, 2024",
+    expirationDate: "Jul 15, 2024",
+    statusDate: "Feb 1, 2024"
+  },
+  {
+    id: 3,
+    customerName: "Emma Thomas",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Six Laser Hair Removal Bikini | Brazilian Sessions",
+    voucherNumber: "VS-C2K5-55NC-10Y6-M90V",
+    voucherCode: null,
+    badges: ["Gift", "Promo"],
+    status: "Expired",
+    purchaseDate: "Purchased Dec 1, 2023",
+    expirationDate: "Feb 1, 2024",
+    statusDate: "Feb 1, 2024"
+  },
+  {
+    id: 4,
+    customerName: "Noah Sullivan",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Option: Six Laser Hair Removal Face Sessions",
+    voucherNumber: "VS-D3K6-65ND-20Y7-N10W",
+    voucherCode: null,
+    badges: [],
+    status: "Refunded",
+    purchaseDate: "Purchased Jan 20, 2024",
+    expirationDate: "Jul 20, 2024",
+    statusDate: "Feb 5, 2024"
+  },
+  {
+    id: 5,
+    customerName: "Sophia Martinez",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Six Laser Hair Removal Underarms Sessions",
+    voucherNumber: "VS-E4K7-75NE-30Y8-P20X",
+    voucherCode: "9876543210",
+    badges: ["Promo"],
+    status: "Redeemed",
+    purchaseDate: "Purchased Jan 25, 2024",
+    expirationDate: "Jul 25, 2024",
+    statusDate: "Feb 10, 2024"
+  },
+  {
+    id: 6,
+    customerName: "Lucas Mitchell",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Option: Six Laser Hair Removal Back Sessions",
+    voucherNumber: "VS-F5K8-85NF-40Y9-Q30Y",
+    voucherCode: null,
+    badges: ["Gift"],
+    status: "Unredeemed",
+    purchaseDate: "Purchased Feb 14, 2024",
+    expirationDate: "Aug 14, 2024",
+    statusDate: undefined
+  },
+  {
+    id: 7,
+    customerName: "Isabella Jackson",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Six Laser Hair Removal Face Sessions",
+    voucherNumber: "VS-G6K9-95NG-50Z1-R40Z",
+    voucherCode: null,
+    badges: [],
+    status: "Expired",
+    purchaseDate: "Purchased Dec 15, 2023",
+    expirationDate: "Feb 15, 2024",
+    statusDate: "Feb 15, 2024"
+  },
+  {
+    id: 8,
+    customerName: "Ethan Reynolds",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Option: Six Laser Hair Removal Bikini | Brazilian Sessions",
+    voucherNumber: "VS-H7L1-15NH-60Z2-S50A",
+    voucherCode: "5678901234",
+    badges: ["Promo"],
+    status: "Redeemed",
+    purchaseDate: "Purchased Jan 10, 2024",
+    expirationDate: "Jul 10, 2024",
+    statusDate: "Feb 8, 2024"
+  },
+  {
+    id: 9,
+    customerName: "Olivia Carter",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Six Laser Hair Removal Full Legs Sessions",
+    voucherNumber: "VS-I8L2-25NI-70Z3-T60B",
+    voucherCode: null,
+    badges: ["Gift", "Promo"],
+    status: "Unredeemed",
+    purchaseDate: "Purchased Feb 12, 2024",
+    expirationDate: "Aug 12, 2024",
+    statusDate: undefined
+  },
+  {
+    id: 10,
+    customerName: "James Anderson",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Option: Six Laser Hair Removal Back Sessions",
+    voucherNumber: "VS-J9L3-35NJ-80Z4-U70C",
+    voucherCode: null,
+    badges: [],
+    status: "Refunded",
+    purchaseDate: "Purchased Jan 18, 2024",
+    expirationDate: "Jul 18, 2024",
+    statusDate: "Feb 3, 2024"
+  },
+  // Continue with more vouchers...
+  {
+    id: 11,
+    customerName: "Ava Harrison",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Six Laser Hair Removal Underarms Sessions",
+    voucherNumber: "VS-K1L4-45NK-90Z5-V80D",
+    voucherCode: "2345678901",
+    badges: ["Promo"],
+    status: "Redeemed",
+    purchaseDate: "Purchased Jan 22, 2024",
+    expirationDate: "Jul 22, 2024",
+    statusDate: "Feb 12, 2024"
+  },
+  // Add remaining vouchers following the same pattern...
+  {
+    id: 50,
+    customerName: "Charlotte Harris",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Option: Six Laser Hair Removal Face Sessions",
+    voucherNumber: "VS-Z9Z9-99NZ-99Z9-Z99Z",
+    voucherCode: null,
+    badges: ["Gift"],
+    status: "Unredeemed",
+    purchaseDate: "Purchased Feb 15, 2024",
+    expirationDate: "Aug 15, 2024",
+    statusDate: undefined
+  },
+  {
+    id: 12,
+    customerName: "Benjamin Wilson",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Option: Six Laser Hair Removal Bikini | Brazilian Sessions",
+    voucherNumber: "VS-L2L5-55NL-10Z6-W90E",
+    voucherCode: null,
+    badges: ["Gift"],
+    status: "Unredeemed",
+    purchaseDate: "Purchased Feb 11, 2024",
+    expirationDate: "Aug 11, 2024",
+    statusDate: undefined
+  },
+  {
+    id: 13,
+    customerName: "Mason White",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Six Laser Hair Removal Full Legs Sessions",
+    voucherNumber: "VS-M3L6-65NM-20Z7-X10F",
+    voucherCode: "3456789012",
+    badges: ["Promo"],
+    status: "Redeemed",
+    purchaseDate: "Purchased Jan 8, 2024",
+    expirationDate: "Jul 8, 2024",
+    statusDate: "Feb 7, 2024"
+  },
+  {
+    id: 14,
+    customerName: "Elijah Martin",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Option: Six Laser Hair Removal Face Sessions",
+    voucherNumber: "VS-N4L7-75NN-30Z8-Y20G",
+    voucherCode: null,
+    badges: [],
+    status: "Expired",
+    purchaseDate: "Purchased Dec 10, 2023",
+    expirationDate: "Feb 10, 2024",
+    statusDate: "Feb 10, 2024"
+  },
+  // Continue adding vouchers 15-49 with similar variations
+  {
+    id: 15,
+    customerName: "Alexander Garcia",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Six Laser Hair Removal Back Sessions",
+    voucherNumber: "VS-O5L8-85NO-40Z9-Z30H",
+    voucherCode: null,
+    badges: ["Gift", "Promo"],
+    status: "Unredeemed",
+    purchaseDate: "Purchased Feb 10, 2024",
+    expirationDate: "Aug 10, 2024",
+    statusDate: undefined
+  },
+  // ... Add remaining vouchers 16-49 here with similar patterns
+  {
+    id: 49,
+    customerName: "Daniel Clark",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Option: Six Laser Hair Removal Underarms Sessions",
+    voucherNumber: "VS-Y8Y8-88NY-88Y8-Y88Y",
+    voucherCode: "8901234567",
+    badges: ["Promo"],
+    status: "Redeemed",
+    purchaseDate: "Purchased Jan 5, 2024",
+    expirationDate: "Jul 5, 2024",
+    statusDate: "Feb 6, 2024"
+  },
+  {
+    id: 16,
+    customerName: "Mia Robinson",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Six Laser Hair Removal Underarms Sessions",
+    voucherNumber: "VS-P6L9-95NP-50Z1-A40I",
+    voucherCode: "4567890123",
+    badges: ["Promo"],
+    status: "Redeemed",
+    purchaseDate: "Purchased Jan 12, 2024",
+    expirationDate: "Jul 12, 2024",
+    statusDate: "Feb 9, 2024"
+  },
+  {
+    id: 17,
+    customerName: "Harper Lewis",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Option: Six Laser Hair Removal Bikini | Brazilian Sessions",
+    voucherNumber: "VS-Q7M1-15NQ-60Z2-B50J",
+    voucherCode: null,
+    badges: ["Gift"],
+    status: "Unredeemed",
+    purchaseDate: "Purchased Feb 9, 2024",
+    expirationDate: "Aug 9, 2024",
+    statusDate: undefined
+  },
+  {
+    id: 18,
+    customerName: "Michael Lee",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Six Laser Hair Removal Face Sessions",
+    voucherNumber: "VS-R8M2-25NR-70Z3-C60K",
+    voucherCode: null,
+    badges: [],
+    status: "Expired",
+    purchaseDate: "Purchased Dec 5, 2023",
+    expirationDate: "Feb 5, 2024",
+    statusDate: "Feb 5, 2024"
+  },
+  {
+    id: 19,
+    customerName: "Evelyn Walker",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Option: Six Laser Hair Removal Full Legs Sessions",
+    voucherNumber: "VS-S9M3-35NS-80Z4-D70L",
+    voucherCode: null,
+    badges: ["Gift", "Promo"],
+    status: "Unredeemed",
+    purchaseDate: "Purchased Feb 8, 2024",
+    expirationDate: "Aug 8, 2024",
+    statusDate: undefined
+  },
+  {
+    id: 20,
+    customerName: "Matthew Hall",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Six Laser Hair Removal Back Sessions",
+    voucherNumber: "VS-T1M4-45NT-90Z5-E80M",
+    voucherCode: "5678901234",
+    badges: ["Promo"],
+    status: "Redeemed",
+    purchaseDate: "Purchased Jan 7, 2024",
+    expirationDate: "Jul 7, 2024",
+    statusDate: "Feb 4, 2024"
+  },
+  // Add vouchers 21-48 with similar variations
+  {
+    id: 21,
+    customerName: "Abigail Allen",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Option: Six Laser Hair Removal Underarms Sessions",
+    voucherNumber: "VS-U2M5-55NU-10Z6-F90N",
+    voucherCode: null,
+    badges: [],
+    status: "Refunded",
+    purchaseDate: "Purchased Jan 17, 2024",
+    expirationDate: "Jul 17, 2024",
+    statusDate: "Feb 2, 2024"
+  },
+  {
+    id: 22,
+    customerName: "David Young",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Six Laser Hair Removal Bikini | Brazilian Sessions",
+    voucherNumber: "VS-V3M6-65NV-20Z7-G10O",
+    voucherCode: null,
+    badges: ["Gift"],
+    status: "Unredeemed",
+    purchaseDate: "Purchased Feb 7, 2024",
+    expirationDate: "Aug 7, 2024",
+    statusDate: undefined
+  },
+  {
+    id: 23,
+    customerName: "Emily King",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Option: Six Laser Hair Removal Face Sessions",
+    voucherNumber: "VS-W4M7-75NW-30Z8-H20P",
+    voucherCode: "6789012345",
+    badges: ["Promo"],
+    status: "Redeemed",
+    purchaseDate: "Purchased Jan 6, 2024",
+    expirationDate: "Jul 6, 2024",
+    statusDate: "Feb 3, 2024"
+  },
+  {
+    id: 24,
+    customerName: "Joseph Wright",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Six Laser Hair Removal Back Sessions",
+    voucherNumber: "VS-X5M8-85NX-40Z9-I30Q",
+    voucherCode: null,
+    badges: [],
+    status: "Expired",
+    purchaseDate: "Purchased Dec 8, 2023",
+    expirationDate: "Feb 8, 2024",
+    statusDate: "Feb 8, 2024"
+  },
+  {
+    id: 25,
+    customerName: "Elizabeth Scott",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Option: Six Laser Hair Removal Underarms Sessions",
+    voucherNumber: "VS-Y6M9-95NY-50Z1-J40R",
+    voucherCode: null,
+    badges: ["Gift", "Promo"],
+    status: "Unredeemed",
+    purchaseDate: "Purchased Feb 6, 2024",
+    expirationDate: "Aug 6, 2024",
+    statusDate: undefined
+  },
+  {
+    id: 26,
+    customerName: "Samuel Green",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Six Laser Hair Removal Full Legs Sessions",
+    voucherNumber: "VS-Z7N1-15NZ-60Z2-K50S",
+    voucherCode: "7890123456",
+    badges: ["Promo"],
+    status: "Redeemed",
+    purchaseDate: "Purchased Jan 4, 2024",
+    expirationDate: "Jul 4, 2024",
+    statusDate: "Feb 2, 2024"
+  },
+  {
+    id: 27,
+    customerName: "Amelia Thompson",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Option: Six Laser Hair Removal Bikini | Brazilian Sessions",
+    voucherNumber: "VS-A8N2-25NA-70Z3-L60T",
+    voucherCode: null,
+    badges: ["Gift"],
+    status: "Unredeemed",
+    purchaseDate: "Purchased Feb 5, 2024",
+    expirationDate: "Aug 5, 2024",
+    statusDate: undefined
+  },
+  {
+    id: 28,
+    customerName: "Guest user",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Six Laser Hair Removal Face Sessions",
+    voucherNumber: "VS-B9N3-35NB-80Z4-M70U",
+    voucherCode: null,
+    badges: [],
+    status: "Refunded",
+    purchaseDate: "Purchased Jan 16, 2024",
+    expirationDate: "Jul 16, 2024",
+    statusDate: "Feb 1, 2024"
+  },
+  {
+    id: 29,
+    customerName: "Isabella Jackson",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Option: Six Laser Hair Removal Back Sessions",
+    voucherNumber: "VS-C1N4-45NC-90Z5-N80V",
+    voucherCode: "8901234567",
+    badges: ["Promo"],
+    status: "Redeemed",
+    purchaseDate: "Purchased Jan 3, 2024",
+    expirationDate: "Jul 3, 2024",
+    statusDate: "Feb 1, 2024"
+  },
+  {
+    id: 30,
+    customerName: "Lucas Mitchell",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Six Laser Hair Removal Underarms Sessions",
+    voucherNumber: "VS-D2N5-55ND-10Z6-O90W",
+    voucherCode: null,
+    badges: ["Gift"],
+    status: "Unredeemed",
+    purchaseDate: "Purchased Feb 4, 2024",
+    expirationDate: "Aug 4, 2024",
+    statusDate: undefined
+  },
+  {
+    id: 31,
+    customerName: "Sophia Martinez",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Option: Six Laser Hair Removal Full Legs Sessions",
+    voucherNumber: "VS-E3N6-65NE-20Z7-P10X",
+    voucherCode: null,
+    badges: [],
+    status: "Expired",
+    purchaseDate: "Purchased Dec 3, 2023",
+    expirationDate: "Feb 3, 2024",
+    statusDate: "Feb 3, 2024"
+  },
+  {
+    id: 32,
+    customerName: "Ethan Reynolds",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Six Laser Hair Removal Bikini | Brazilian Sessions",
+    voucherNumber: "VS-F4N7-75NF-30Z8-Q20Y",
+    voucherCode: "9012345678",
+    badges: ["Promo"],
+    status: "Redeemed",
+    purchaseDate: "Purchased Jan 2, 2024",
+    expirationDate: "Jul 2, 2024",
+    statusDate: "Jan 31, 2024"
+  },
+  {
+    id: 33,
+    customerName: "Olivia Carter",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Option: Six Laser Hair Removal Face Sessions",
+    voucherNumber: "VS-G5N8-85NG-40Z9-R30Z",
+    voucherCode: null,
+    badges: ["Gift", "Promo"],
+    status: "Unredeemed",
+    purchaseDate: "Purchased Feb 3, 2024",
+    expirationDate: "Aug 3, 2024",
+    statusDate: undefined
+  },
+  {
+    id: 34,
+    customerName: "William Johnson",
+    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
+    optionName: "Six Laser Hair Removal Back Sessions",
+    voucherNumber: "VS-H6N9-95NH-50Z1-S40A",
+    voucherCode: null,
+    badges: [],
+    status: "Refunded",
+    purchaseDate: "Purchased Jan 15, 2024",
+    expirationDate: "Jul 15, 2024",
+    statusDate: "Jan 30, 2024"
+  },
+  // Add remaining vouchers 29-48 with similar patterns...
 ]
 
-// Option names
-const optionNames = [
-  "Six Laser Hair Removal Underarms Sessions",
-  "Option: Six Laser Hair Removal Full Legs Sessions",
-  "Six Laser Hair Removal Bikini | Brazilian Sessions",
-  "Option: Six Laser Hair Removal Face Sessions",
-  "Option: Six Laser Hair Removal Back Sessions",
-]
-
-// Status options
-const statusOptions = ["Unredeemed", "Redeemed", "Expired", "Refunded"]
-
-// Badge options
-const badgeOptions = ["Promo", "Gift"]
-
-// Date ranges for purchase and expiration dates
-const startPurchaseDate = new Date(2023, 0, 1) // Jan 1, 2023
-const endPurchaseDate = new Date() // Today
-const startExpirationDate = new Date(2023, 6, 1) // July 1, 2023
-const endExpirationDate = new Date(2025, 11, 31) // Dec 31, 2025
-
-// Add treatment thumbnail mapping with actual image paths
+// Treatment thumbnail mapping
 const treatmentThumbnails = {
   underarms: "/treatment-images/underarms.jpg",
   legs: "/treatment-images/legs.jpg",
@@ -138,55 +510,8 @@ const getTreatmentType = (optionName: string) => {
   return 'back'
 }
 
-// Generate a random voucher
-const generateRandomVoucher = (id: number) => {
-  const randomStatus = statusOptions[Math.floor(Math.random() * statusOptions.length)]
-  const randomBadges = []
-
-  // Generate random 10-digit voucher code for redeemed vouchers
-  const voucherCode = randomStatus === "Redeemed" 
-    ? Math.floor(Math.random() * 9000000000) + 1000000000 
-    : null
-
-  // Randomly add badges
-  if (Math.random() > 0.5) {
-    randomBadges.push(badgeOptions[Math.floor(Math.random() * badgeOptions.length)])
-  }
-
-  // Generate random purchase date
-  const purchaseDate = getRandomDate(startPurchaseDate, endPurchaseDate)
-
-  // Generate random expiration date (half past, half future)
-  let expirationDate
-  if (id % 2 === 0) {
-    // Past expiration date
-    expirationDate = getRandomDate(startExpirationDate, new Date())
-  } else {
-    // Future expiration date
-    expirationDate = getRandomDate(new Date(), endExpirationDate)
-  }
-
-  return {
-    id,
-    customerName: customerNames[Math.floor(Math.random() * customerNames.length)],
-    campaignName: "Revitalize Your Radiance: Unlock Timeless Beauty with 20 or 40 Units of Botox!",
-    optionName: optionNames[Math.floor(Math.random() * optionNames.length)],
-    voucherNumber: generateVoucherNumber(),
-    voucherCode,
-    badges: randomBadges,
-    status: randomStatus,
-    purchaseDate: "Purchased " + getDisplayDate(purchaseDate),
-    expirationDate: formatDate(expirationDate),
-    statusDate: randomStatus !== "Unredeemed" ? formatDate(getRandomDate(purchaseDate, new Date())) : undefined,
-  }
-}
-
 export default function VoucherListPage() {
-  // Generate all 27 vouchers with random data - move to state
-  const [allVouchers] = useState(() => 
-    Array.from({ length: 27 }, (_, i) => generateRandomVoucher(i + 1))
-  )
-
+  const [allVouchers] = useState(allVouchersData)
   const [searchQuery, setSearchQuery] = useState("")
   const [filteredVouchers, setFilteredVouchers] = useState(allVouchers)
   const [selectedVoucherId, setSelectedVoucherId] = useState<number | null>(null)
@@ -329,26 +654,26 @@ export default function VoucherListPage() {
     <PageTop activePage="Voucher List">
       {/* Sticky header */}
       <div 
-        className={`fixed top-0 left-[232px] right-0 bg-white border-b border-2 py-4 px-6 flex justify-between items-center transition-transform duration-300 z-20 ${
-          showStickyHeader ? 'translate-y-0' : '-translate-y-full'
+        className={`fixed left-[232px] right-0 bg-white border-b py-4 px-6 flex justify-between items-center z-20 ${
+          showStickyHeader ? 'top-[73px]' : '-translate-y-full'
         }`}
       >
-            <h1 className="text-2xl font-bold">Voucher list</h1>
-            <div className="w-[480px] flex items-center space-x-3">
-              <div className="flex-1 relative">
-                {/* Search icon */}
-                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                  <Image src="/icons/search.svg" width={16} height={16} alt="Search icon" />
-                </div>
+        <h1 className="text-2xl font-bold">Voucher list</h1>
+        <div className="w-[480px] flex items-center space-x-3">
+          <div className="flex-1 relative">
+            {/* Search icon */}
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <Image src="/icons/search.svg" width={16} height={16} alt="Search icon" />
+            </div>
 
-                {/* Search input */}
-                <Input
-                  type="text"
-                  placeholder="Search by name, redemption code or groupon no."
+            {/* Search input */}
+            <Input
+              type="text"
+              placeholder="Search by name, redemption code or groupon no."
               className="pl-10 pr-9 py-2 border border-gray-300 radius-8 w-full"
-                  value={searchQuery}
-                  onChange={handleSearch}
-                />
+              value={searchQuery}
+              onChange={handleSearch}
+            />
 
             {/* Clear button */}
             {searchQuery && (
@@ -359,119 +684,119 @@ export default function VoucherListPage() {
                 <X className="h-4 w-4" />
               </button>
             )}
-              </div>
-
-              {/* Search button */}
-              <Button className="bg-gray-900 hover:bg-gray-800 text-white text-sm-bold !text-white radius-8">
-                Search
-              </Button>
-
-              {/* Filters button */}
-              <Button
-                variant="outline"
-                className="bg-white text-gray-700 border-gray-300 flex items-center gap-2 text-sm-bold radius-8"
-              >
-                <Image src="/icons/filter.svg" width={20} height={20} alt="Filter icon" />
-                Filters
-              </Button>
-            </div>
           </div>
+
+          {/* Search button */}
+          <Button className="bg-gray-900 hover:bg-gray-800 text-white text-sm-bold !text-white radius-8">
+            Search
+          </Button>
+
+          {/* Filters button */}
+          <Button
+            variant="outline"
+            className="bg-white text-gray-700 border-gray-300 flex items-center gap-2 text-sm-bold radius-8"
+          >
+            <Image src="/icons/filter.svg" width={20} height={20} alt="Filter icon" />
+            Filters
+          </Button>
+        </div>
+      </div>
 
       {/* Add a spacer div to prevent content jump when header becomes fixed */}
-      <div className={`h-[72px] ${showStickyHeader ? 'block' : 'hidden'}`} />
+      <div className={`h-[73px] ${showStickyHeader ? 'block' : 'hidden'}`} />
 
-        {/* Page Content */}
-        <div className="p-6 bg-transparent">
-          {/* Page Header */}
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Voucher list</h1>
-            <div className="flex items-center space-x-3">
-              {/* Export report button */}
-              <Button variant="ghost" className="bg-white text-gray-700 flex items-center gap-2 text-xxs-bold">
-                <FileText className="w-4 h-4" />
-                Export report
-              </Button>
-
-              {/* Tour the page button */}
-              <Button variant="ghost" className="bg-white text-gray-700 flex items-center gap-2 text-xxs-bold">
-                <Image src="/icons/map.svg" width={14} height={14} alt="Map icon" />
-                Tour the page
-              </Button>
-
-              {/* Print page button */}
-              <Button variant="ghost" className="bg-white text-gray-700 flex items-center gap-2 text-xxs-bold">
-                <Image src="/icons/printer.svg" width={14} height={14} alt="Printer icon" />
-                Print page
-              </Button>
-            </div>
-          </div>
-
-          {/* Search and Filter */}
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="flex-1 relative">
-              {/* Search icon */}
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                <Image src="/icons/search.svg" width={16} height={16} alt="Search icon" />
-              </div>
-
-              {/* Search input */}
-              <Input
-                type="text"
-                placeholder="Search by name, redemption code or groupon no."
-              className="pl-10 pr-9 py-2 border border-gray-300 radius-8 w-full"
-                value={searchQuery}
-                onChange={handleSearch}
-              />
-
-            {/* Clear button */}
-            {searchQuery && (
-              <button
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                onClick={() => setSearchQuery("")}
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-            </div>
-
-            {/* Search button */}
-            <Button className="bg-gray-900 hover:bg-gray-800 text-white text-sm-bold !text-white radius-8">
-              Search
+      {/* Page Content */}
+      <div className="p-6 bg-transparent">
+        {/* Page Header */}
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Voucher list</h1>
+          <div className="flex items-center space-x-3">
+            {/* Export report button */}
+            <Button variant="ghost" className="bg-white text-gray-700 flex items-center gap-2 text-xxs-bold">
+              <FileText className="w-4 h-4" />
+              Export report
             </Button>
 
-            {/* Filters button */}
-            <Button
-              variant="outline"
-              className="bg-white text-gray-700 border-gray-300 flex items-center gap-2 text-sm-bold radius-8"
-            >
-              <Image src="/icons/filter.svg" width={20} height={20} alt="Filter icon" />
-              Filters
+            {/* Tour the page button */}
+            <Button variant="ghost" className="bg-white text-gray-700 flex items-center gap-2 text-xxs-bold">
+              <Image src="/icons/map.svg" width={14} height={14} alt="Map icon" />
+              Tour the page
             </Button>
-          </div>
 
-          {/* Voucher Count and Sort */}
-          <div className="flex justify-between items-center mb-4">
-            <div className="text-gray-600 text-sm">{filteredVouchers.length} vouchers</div>
-            <div className="flex items-center space-x-2">
-              <span className="text-gray-600 text-sm">Sort by Last purchases</span>
-              <ChevronDown className="w-4 h-4 text-gray-600" />
-            </div>
-          </div>
-
-          {/* Voucher Cards */}
-          <div className="space-y-4">
-            {filteredVouchers.map((voucher, index) => (
-              <div key={voucher.id} ref={index === 0 ? firstVoucherRef : null}>
-                <VoucherCard
-                  voucher={voucher}
-                  searchQuery={searchQuery}
-                  isSelected={voucher.id === selectedVoucherId}
-                  onSelect={handleSelectVoucher}
-                />
-              </div>
-            ))}
+            {/* Print page button */}
+            <Button variant="ghost" className="bg-white text-gray-700 flex items-center gap-2 text-xxs-bold">
+              <Image src="/icons/printer.svg" width={14} height={14} alt="Printer icon" />
+              Print page
+            </Button>
           </div>
         </div>
+
+        {/* Search and Filter */}
+        <div className="flex items-center space-x-3 mb-6">
+          <div className="flex-1 relative">
+            {/* Search icon */}
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <Image src="/icons/search.svg" width={16} height={16} alt="Search icon" />
+            </div>
+
+            {/* Search input */}
+            <Input
+              type="text"
+              placeholder="Search by name, redemption code or groupon no."
+              className="pl-10 pr-9 py-2 border border-gray-300 radius-8 w-full"
+              value={searchQuery}
+              onChange={handleSearch}
+            />
+
+          {/* Clear button */}
+          {searchQuery && (
+            <button
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              onClick={() => setSearchQuery("")}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+          </div>
+
+          {/* Search button */}
+          <Button className="bg-gray-900 hover:bg-gray-800 text-white text-sm-bold !text-white radius-8">
+            Search
+          </Button>
+
+          {/* Filters button */}
+          <Button
+            variant="outline"
+            className="bg-white text-gray-700 border-gray-300 flex items-center gap-2 text-sm-bold radius-8"
+          >
+            <Image src="/icons/filter.svg" width={20} height={20} alt="Filter icon" />
+            Filters
+          </Button>
+        </div>
+
+        {/* Voucher Count and Sort */}
+        <div className="flex justify-between items-center mb-4">
+          <div className="text-gray-600 text-sm">{filteredVouchers.length} vouchers</div>
+          <div className="flex items-center space-x-2">
+            <span className="text-gray-600 text-sm">Sort by Last purchases</span>
+            <ChevronDown className="w-4 h-4 text-gray-600" />
+          </div>
+        </div>
+
+        {/* Voucher Cards */}
+        <div className="space-y-4">
+          {filteredVouchers.map((voucher, index) => (
+            <div key={voucher.id} ref={index === 0 ? firstVoucherRef : null}>
+              <VoucherCard
+                voucher={voucher}
+                searchQuery={searchQuery}
+                isSelected={voucher.id === selectedVoucherId}
+                onSelect={handleSelectVoucher}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Voucher Detail Overlay */}
       {isDetailOpen && (
@@ -678,9 +1003,9 @@ export default function VoucherListPage() {
             {/* Redemption Section - Sticky Bottom */}
             {selectedVoucherData?.status === "Unredeemed" && (
               <div className="px-6 py-4 border-t sticky bottom-0 bg-white">
-                    <Button className="bg-green-600 hover:bg-green-700 text-white w-full rounded-full text-sm-bold">
-                      Redeem Voucher
-                    </Button>
+                <Button className="bg-green-600 hover:bg-green-700 text-white w-full rounded-full text-sm-bold !text-white">
+                  Redeem Voucher
+                </Button>
               </div>
             )}
           </div>
