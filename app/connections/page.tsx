@@ -21,7 +21,7 @@ export default function ConnectionsPage() {
             showSpecialOffer={true}
             showStatus={true}
             status="Connected"
-            logoSrc="/connections/mindbody.svg"
+            logoSrc="/Connections/Mindbody.svg"
           />
 
           <IntegrationCard
@@ -30,7 +30,7 @@ export default function ConnectionsPage() {
             showSpecialOffer={false}
             showStatus={true}
             status="Incomplete"
-            logoSrc="/connections/booker.svg"
+            logoSrc="/Connections/Booker.svg"
           />
 
           <IntegrationCard
@@ -38,7 +38,7 @@ export default function ConnectionsPage() {
             toolDescription="Manage payments and appointments with Square's POS system, making it easy to track sales and bookings in one place."
             showSpecialOffer={false}
             showStatus={false}
-            logoSrc="/connections/square.svg"
+            logoSrc="/Connections/Square.svg"
           />
 
           <IntegrationCard
@@ -46,14 +46,14 @@ export default function ConnectionsPage() {
             toolDescription="Allow customers to book services online 24/7, with automated reminders and client management features."
             showSpecialOffer={false}
             showStatus={false}
-            logoSrc="/connections/booksy.svg"
+            logoSrc="/Connections/Booksy.svg"
           />
         </div>
 
         {/* Integration Feedback Section */}
-        <div className="flex p-6 items-center gap-16 self-stretch rounded-xl bg-[rgba(0,0,0,0.05)]">
+        <div className="flex p-6 items-center gap-16 self-stretch justify-between rounded-xl bg-[rgba(0,0,0,0.05)]">
           {/* Content Wrapper */}
-          <div className="flex flex-col items-start gap-3 flex-1">
+          <div className="flex flex-col items-start gap-3 flex-1 max-w-xl">
             <h3 className="h3 text-[#111827] self-stretch">
               Didn't find the integration you're looking for?
             </h3>
@@ -63,7 +63,7 @@ export default function ConnectionsPage() {
           </div>
 
           {/* Input Wrapper */}
-          <div className="flex items-center gap-2 flex-1">
+          <div className="flex items-center gap-2 flex-1 max-w-xl">
             <input
               type="text"
               placeholder="Type tools you wish to add..."
