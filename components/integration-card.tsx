@@ -62,7 +62,7 @@ export default function IntegrationCard({
             </h4>
             {showSpecialOffer && (
               <div className="flex h-5 min-w-[20px] px-[6px] justify-center items-center gap-1 rounded-full bg-[#F5EDFC]">
-                <Image src="/icons/gift.svg" width={14} height={14} alt="Special offer" className="text-[#6F389B] [&>path]:fill-[#6F389B]" />
+                <Image src="/icons/Gift.svg" width={14} height={14} alt="Special offer" className="text-[#6F389B] [&>path]:fill-[#6F389B]" />
                 <span className="text-xxs-bold text-[#6F389B]">Special offer</span>
               </div>
             )}
