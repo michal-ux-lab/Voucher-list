@@ -1,20 +1,31 @@
 import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
 import './globals.css'
+import ClientLayout from '@/components/client-layout'
+import { ToastProvider } from '@/components/ui/toast-context'
+
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'Voucher List',
+  description: 'Voucher List Application',
   generator: 'v0.dev',
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={inter.className}>
+        <ToastProvider>
+          <ClientLayout>
+            {children}
+          </ClientLayout>
+        </ToastProvider>
+      </body>
     </html>
   )
 }

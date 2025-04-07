@@ -14,7 +14,12 @@ interface NavItemProps {
 function NavItem({ icon, label, active = false, hasDropdown = false }: NavItemProps) {
   return (
     <Link
-      href={label === "Connections" ? "/connections" : label === "Voucher List" ? "/" : "#"}
+      href={
+        label === "Connections" ? "/connections" : 
+        label === "Voucher List" ? "/" : 
+        label === "DCT Config" ? "/dct-config" : 
+        "#"
+      }
       className={`flex items-center space-x-3 px-3 py-2 rounded-md ${active ? "bg-gray-100" : "hover:bg-gray-50"}`}
     >
       <span className="text-gray-500">{icon}</span>
@@ -78,6 +83,11 @@ export default function SideNavigation({ activePage }: SideNavigationProps) {
           icon={<Image src="/icons/connections.svg" width={16} height={16} alt="Connections icon" />}
           label="Connections"
           active={activePage === "Connections"}
+        />
+        <NavItem
+          icon={<Image src="/icons/filter-nav.svg" width={16} height={16} alt="DCT Config icon" />}
+          label="DCT Config"
+          active={activePage === "DCT Config"}
         />
         <NavItem 
           icon={<Image src="/icons/help.svg" width={16} height={16} alt="Help icon" />} 

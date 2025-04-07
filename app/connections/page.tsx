@@ -1,18 +1,23 @@
 "use client"
 
 import React from "react"
-import PageTop from "@/components/page-top"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import Image from "next/image"
+import { ChevronDown, X } from "lucide-react"
 import IntegrationCard from "@/components/integration-card"
+import PageTop from "@/components/page-top"
 
 export default function ConnectionsPage() {
   return (
     <PageTop activePage="Connections">
-      <div className="p-6">
+      <div className="p-6 self-stretch">
         <h1 className="text-2xl font-bold">Connections</h1>
-        <p className="text-md text-[#70747D] mt-2 mb-12">
+        <p className="text-md text-[#70747D] mt-2 mb-6">
           Enhance your Groupon experience by connecting a wide variety of tools you use the most.
         </p>
-        
+
+
         {/* List of Integration Cards */}
         <div className="grid grid-cols-2 gap-6 mb-12">
           <IntegrationCard
@@ -78,4 +83,3 @@ export default function ConnectionsPage() {
     </PageTop>
   )
 }
-

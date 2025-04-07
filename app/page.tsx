@@ -1,17 +1,14 @@
 "use client"
 
-import type React from "react"
-
+import React from "react"
 import { Badge } from "@/components/ui/badge"
-
 import { ChevronDown, FileText, X } from "lucide-react"
 import Image from "next/image"
-import Link from "next/link"
 import { useState, useEffect, useRef, useCallback } from "react"
 import VoucherCard from "@/components/voucher-card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import SideNavigation from "@/components/side-navigation"
+import EmptySearch from "@/components/empty-search"
 import PageTop from "@/components/page-top"
 
 // Static voucher data
@@ -511,105 +508,68 @@ const getTreatmentType = (optionName: string) => {
 }
 
 export default function VoucherListPage() {
-  const [allVouchers] = useState(allVouchersData)
   const [searchQuery, setSearchQuery] = useState("")
-  const [filteredVouchers, setFilteredVouchers] = useState(allVouchers)
   const [selectedVoucherId, setSelectedVoucherId] = useState<number | null>(null)
-  const [selectedVoucherData, setSelectedVoucherData] = useState<typeof allVouchers[0] | null>(null)
+  const [selectedVoucherData, setSelectedVoucherData] = useState<typeof allVouchersData[0] | null>(null)
+  const [showStickyHeader, setShowStickyHeader] = useState(false)
+  const [filteredVouchers, setFilteredVouchers] = useState(allVouchersData)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [isDetailAnimating, setIsDetailAnimating] = useState(false)
-  const detailRef = useRef<HTMLDivElement>(null)
-  const overlayRef = useRef<HTMLDivElement>(null)
-
-  // Add these new state variables and refs
-  const [showStickyHeader, setShowStickyHeader] = useState(false)
-  const firstVoucherRef = useRef<HTMLDivElement>(null)
-  const headerObserverRef = useRef<IntersectionObserver | null>(null)
-  const lastScrollY = useRef(0)
-
   const [detailWidth, setDetailWidth] = useState(480) // Default width
   const [isResizing, setIsResizing] = useState(false)
+  const firstVoucherRef = useRef<HTMLDivElement>(null)
+  const detailRef = useRef<HTMLDivElement>(null)
   const resizeRef = useRef<HTMLDivElement>(null)
 
-  // Filter vouchers based on search query
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredVouchers(allVouchers)
-      return
-    }
-
-    const lowercaseQuery = searchQuery.toLowerCase()
-    const filtered = allVouchers.filter(
-      (voucher) =>
-        voucher.customerName.toLowerCase().includes(lowercaseQuery) ||
-        voucher.voucherNumber.toLowerCase().includes(lowercaseQuery),
-    )
-    setFilteredVouchers(filtered)
-  }, [searchQuery, allVouchers])
-
-  // Handle click outside to close detail panel
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        isDetailOpen &&
-        overlayRef.current &&
-        event.target === overlayRef.current // Only close when clicking the overlay background
-      ) {
-        closeDetail()
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [isDetailOpen])
-
-  // Add scroll handler for sticky header
+  // Handle scroll for sticky header
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY
-      
-      // Show header when scrolling down and past the first voucher
-      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-        setShowStickyHeader(true)
+      if (firstVoucherRef.current) {
+        const rect = firstVoucherRef.current.getBoundingClientRect()
+        setShowStickyHeader(rect.top <= 73) // 73px is the height of the action bar
       }
-      // Hide header when scrolling up to top
-      else if (currentScrollY < lastScrollY.current && currentScrollY < 100) {
-        setShowStickyHeader(false)
-      }
-      
-      lastScrollY.current = currentScrollY
     }
 
-    window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Create a shared search handler function
   const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
+    const query = e.target.value
+    setSearchQuery(query)
+
+    const filtered = allVouchersData.filter((voucher) => {
+      const searchString = `${voucher.customerName} ${voucher.voucherNumber}`.toLowerCase()
+      return searchString.includes(query.toLowerCase())
+    })
+
+    setFilteredVouchers(filtered)
   }, [])
 
-  const handleSelectVoucher = (id: number) => {
-    const voucher = allVouchers.find((v) => v.id === id)
+  const clearSearch = useCallback(() => {
+    setSearchQuery("")
+    setFilteredVouchers(allVouchersData)
+  }, [])
+
+  const handleSelectVoucher = useCallback((id: number) => {
+    const voucher = allVouchersData.find((v) => v.id === id)
     if (voucher) {
-    setSelectedVoucherId(id)
+      setSelectedVoucherId(id)
       setSelectedVoucherData(voucher)
       
       if (!isDetailOpen) {
-    setIsDetailOpen(true)
+        setIsDetailOpen(true)
         requestAnimationFrame(() => {
           setIsDetailAnimating(true)
         })
       }
     }
-  }
+  }, [isDetailOpen])
 
   const closeDetail = () => {
     setIsDetailAnimating(false)
     // After animation completes, close the panel and clear selection
-      setTimeout(() => {
+    setTimeout(() => {
       setIsDetailOpen(false)
       setSelectedVoucherId(null)
       setSelectedVoucherData(null)
@@ -651,12 +611,12 @@ export default function VoucherListPage() {
   }, [isResizing])
 
   return (
-    <PageTop activePage="Voucher List">
+    <PageTop activePage="Voucher List" showActionBar>
       {/* Sticky header */}
       <div 
         className={`fixed left-[232px] right-0 bg-white border-b py-4 px-6 flex justify-between items-center z-20 ${
           showStickyHeader ? 'top-[73px]' : '-translate-y-full'
-        }`}
+        } transition-transform duration-200`}
       >
         <h1 className="text-2xl font-bold">Voucher list</h1>
         <div className="w-[480px] flex items-center space-x-3">
@@ -679,7 +639,7 @@ export default function VoucherListPage() {
             {searchQuery && (
               <button
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                onClick={() => setSearchQuery("")}
+                onClick={clearSearch}
               >
                 <X className="h-4 w-4" />
               </button>
@@ -706,7 +666,7 @@ export default function VoucherListPage() {
       <div className={`h-[73px] ${showStickyHeader ? 'block' : 'hidden'}`} />
 
       {/* Page Content */}
-      <div className="p-6 bg-transparent">
+      <div className="p-6 bg-transparent w-full">
         {/* Page Header */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Voucher list</h1>
@@ -748,15 +708,15 @@ export default function VoucherListPage() {
               onChange={handleSearch}
             />
 
-          {/* Clear button */}
-          {searchQuery && (
-            <button
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              onClick={() => setSearchQuery("")}
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
+            {/* Clear button */}
+            {searchQuery && (
+              <button
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                onClick={clearSearch}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
 
           {/* Search button */}
@@ -783,19 +743,23 @@ export default function VoucherListPage() {
           </div>
         </div>
 
-        {/* Voucher Cards */}
-        <div className="space-y-4">
-          {filteredVouchers.map((voucher, index) => (
-            <div key={voucher.id} ref={index === 0 ? firstVoucherRef : null}>
-              <VoucherCard
-                voucher={voucher}
-                searchQuery={searchQuery}
-                isSelected={voucher.id === selectedVoucherId}
-                onSelect={handleSelectVoucher}
-              />
-            </div>
-          ))}
-        </div>
+        {/* Voucher List or Empty State */}
+        {filteredVouchers.length > 0 ? (
+          <div className="space-y-4">
+            {filteredVouchers.map((voucher, index) => (
+              <div key={voucher.id} ref={index === 0 ? firstVoucherRef : null}>
+                <VoucherCard
+                  voucher={voucher}
+                  searchQuery={searchQuery}
+                  isSelected={voucher.id === selectedVoucherId}
+                  onSelect={handleSelectVoucher}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <EmptySearch searchQuery={searchQuery} />
+        )}
       </div>
 
       {/* Voucher Detail Overlay */}
@@ -843,10 +807,10 @@ export default function VoucherListPage() {
                             backgroundImage: `url(${treatmentThumbnails[getTreatmentType(selectedVoucherData.optionName)]})`
                           }}
                         />
-                </div>
+                      </div>
                       <div className="flex-1">
                         <h3 className="text-md">{selectedVoucherData.optionName}</h3>
-                </div>
+                      </div>
                     </div>
 
                     {/* Status Section */}
@@ -885,9 +849,9 @@ export default function VoucherListPage() {
                             ? `Redeemed by ${['Customer', 'Merchant', 'Groupon'][Math.floor(Math.random() * 3)]}`
                             : 'No Longer Want/Need this Reservation'
                           }
-                      </div>
-                    )}
-                  </div>
+                        </div>
+                      )}
+                    </div>
 
                     {/* Voucher Details Section */}
                     <div>
@@ -900,20 +864,20 @@ export default function VoucherListPage() {
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Purchase date:</span>
                           <span className="text-sm">{selectedVoucherData.purchaseDate.replace('Purchased ', '')}</span>
-                </div>
+                        </div>
                         {selectedVoucherData.badges.length > 0 && (
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-gray-600">Sold as:</span>
                             <div className="flex gap-2">
                               {selectedVoucherData.badges.map((badge, index) => (
-                        <Badge
-                          key={index}
-                          className={`${
+                                <Badge
+                                  key={index}
+                                  className={`${
                                     badge === "Promo" 
                                       ? "inline-flex items-start px-[6px] py-[2px] gap-1 bg-[#7E40B2] !text-white rounded" 
                                       : "flex items-center px-[6px] py-[2px] gap-1 bg-[#F5EDFC] !text-[#6F389B] rounded"
-                          } border-none text-xxs-bold`}
-                        >
+                                  } border-none text-xxs-bold`}
+                                >
                                   {badge === "Gift" && (
                                     <svg
                                       xmlns="http://www.w3.org/2000/svg"
@@ -934,12 +898,12 @@ export default function VoucherListPage() {
                                       <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
                                     </svg>
                                   )}
-                          {badge}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                                  {badge}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Groupon number:</span>
                           <div className="flex items-center gap-2">
