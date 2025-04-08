@@ -15,6 +15,7 @@ export interface Deal {
   id: string
   salesforceId: string
   category: string
+  dealCategory: string
   merchantName: string
   location: string
   dealName: string
@@ -32,6 +33,7 @@ export const versaillesDeal: Deal = {
   id: "versailles-massage-bar-1",
   salesforceId: "006A000001dX4NGIA0",
   category: "Couples Massage",
+  dealCategory: "Couples Massage",
   merchantName: "Versailles Massage & Bar",
   location: "1329 South Michigan Avenue, Chicago",
   dealName: "Indulge in Royal Treatment Packages or Swedish/Deep Tissue Massage at Versailles Massage & Bar - Up to 55% Off",
@@ -96,6 +98,7 @@ export const fitFootDeal: Deal = {
   id: "fit-foot-6-12",
   salesforceId: "006A000001dX4NKIA0",
   category: "Deep Tissue Massage",
+  dealCategory: "Deep Tissue Massage",
   merchantName: "Fit Foot",
   location: "1459 West Fullerton Avenue, Chicago",
   dealName: "Indulge in a Couple Deep Tissue Massage Experience with Fit Foot, Choose from 60 or 90 Minutes for Up to 50% Off",
@@ -131,6 +134,7 @@ export const wellnessFootDeal: Deal = {
   id: "wellness-foot-spa-9",
   salesforceId: "006A000001dX4NLIA0",
   category: "Couples Massage",
+  dealCategory: "Couples Massage",
   merchantName: "Wellness Foot Spa",
   location: "1713 North Clybourn Avenue, Chicago",
   dealName: "Relax and Rejuvenate: Full-Body Relief with Massage Packages for One or Two at Wellness Foot Spa - Up to 55% Off",

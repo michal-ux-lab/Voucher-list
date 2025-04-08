@@ -42,13 +42,14 @@ export default function DCTConfigDealHero({
     rating: deal?.rating || rating || 0,
     numberOfReviews: deal?.numberOfReviews || numberOfReviews || 0,
     options: deal?.options || options || [],
-    grouponLink: deal?.grouponLink || ''
+    grouponLink: deal?.grouponLink || '',
+    dealCategory: deal?.dealCategory || ''
   }
 
   const selectedOption = displayData.options[selectedOptionIndex] || {}
 
   return (
-    <div className="flex items-start gap-3 self-stretch bg-white">
+    <div className="flex items-start gap-3 self-stretch bg-white mb-4">
       {/* Deal Image with Rating */}
       <div className="relative w-[200px] h-[120px] flex-shrink-0">
         <img 
@@ -75,6 +76,16 @@ export default function DCTConfigDealHero({
           <h2 className="text-md font-bold text-[#111827]">{displayData.dealName}</h2>
           <p className="text-sm text-[#70747D] whitespace-nowrap overflow-hidden text-ellipsis">{displayData.location}</p>
         </div>
+
+        {/* Category Badge */}
+        {displayData.dealCategory && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-[#70747D]">Deal category</span>
+            <span className="bg-level3 rounded-[8px] px-2 py-1 text-sm-bold">
+              {displayData.dealCategory}
+            </span>
+          </div>
+        )}
 
         {/* Pricing */}
         {selectedOption.originalPrice && (

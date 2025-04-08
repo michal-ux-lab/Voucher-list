@@ -4,6 +4,7 @@ import React, { useState, useRef, useCallback } from 'react'
 import { ChevronDown, Loader2 } from 'lucide-react'
 import { useToast } from '@/components/ui/toast-context'
 import { deals, DealOption } from '@/lib/mock-database'
+import CategoriesHelpModal from '@/components/ui/categories-help-modal'
 
 interface DCTConfigDealOptionsProps {
   options: DealOption[]
@@ -36,6 +37,7 @@ export default function DCTConfigDealOptions({
   const [openDropdown, setOpenDropdown] = useState<number | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false)
   const dropdownRefs = useRef<(HTMLDivElement | null)[]>([])
   const { showToast } = useToast()
 
@@ -138,8 +140,19 @@ export default function DCTConfigDealOptions({
       {/* Header */}
       <div className="flex justify-between items-center w-full">
         <h3 className="text-xl font-bold text-[#111827]">Secondary option PDS</h3>
-        <a href="#" className="text-md text-[#006BC3] hover:underline">How to set up categories</a>
+        <button 
+          onClick={() => setIsHelpModalOpen(true)}
+          className="text-md text-[#006BC3] hover:underline"
+        >
+          How to set up categories
+        </button>
       </div>
+
+      {/* Help Modal */}
+      <CategoriesHelpModal 
+        isOpen={isHelpModalOpen}
+        onClose={() => setIsHelpModalOpen(false)}
+      />
 
       {/* Options Container */}
       <div className="flex flex-col w-full">

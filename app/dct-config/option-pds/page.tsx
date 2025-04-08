@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { X } from "lucide-react"
+import { X, ChevronLeft } from "lucide-react"
 import DCTConfigDealCard from "@/components/dct-config-deal-card"
 import { Deal } from "@/lib/mock-database"
 import EmptySearch from "@/components/empty-search"
@@ -67,6 +67,15 @@ export default function OptionPDSConfigPage() {
 
   return (
     <div className="p-6">
+      {/* Back button */}
+      <Link 
+        href="/dct-config"
+        className="inline-flex items-center text-sm text-[#006BC3] hover:text-[#004B87] mb-6"
+      >
+        <ChevronLeft className="w-4 h-4 mr-1" />
+        Back to DCT Config
+      </Link>
+
       <h1 className="text-2xl font-bold">Option PDS Configuration</h1>
       <p className="text-md text-[#70747D] mt-2 mb-6">
         Configure and manage Product Description System settings for deal options, ensuring accurate and consistent product information.
