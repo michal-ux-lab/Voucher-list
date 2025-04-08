@@ -78,7 +78,7 @@ export default function OptionPDSConfigPage() {
 
       <h1 className="text-2xl font-bold">Option PDS Configuration</h1>
       <p className="text-md text-[#70747D] mt-2 mb-6">
-        Configure and manage Product Description System settings for deal options, ensuring accurate and consistent product information.
+        Configure and manage categories (PDS) for deal options.
       </p>
 
       {/* Search Bar */}
