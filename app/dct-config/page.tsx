@@ -14,30 +14,32 @@ export default function DCTConfigPage() {
       
       {/* DCT Config Cards */}
       <div className="grid grid-cols-4 gap-6">
-        <Link href="#" className="block">
+        <Link href="#" className="block h-full">
           <DCTConfigCard
-            name="Campaign Analytics"
-            description="Track and analyze campaign performance metrics, including conversion rates, customer engagement, and ROI across different marketing channels."
+            name="Campaign Pause reasons"
+            description="Manage all the reasons available for pausing a deal."
           />
         </Link>
-        <Link href="/dct-config/option-pds" className="block">
+        <Link href="/dct-config/option-pds" className="block h-full">
           <DCTConfigCard
             name="Option PDS Configuration"
-            description="Configure and manage Product Description System settings for deal options, ensuring accurate and consistent product information."
+            description="Configure and manage categories (PDS) for deal options."
           />
         </Link>
-        <Link href="#" className="block">
+        <div className="block h-full">
           <DCTConfigCard
             name="Automation Rules"
-            description="Set up automated workflows and triggers for customer communications, campaign management, and system notifications based on predefined conditions."
+            description="Set up automated workflows and triggers for customer communications."
+            disabled
           />
-        </Link>
-        <Link href="#" className="block">
+        </div>
+        <div className="block h-full">
           <DCTConfigCard
             name="Integration Settings"
-            description="Configure and manage connections with third-party tools, APIs, and services to streamline data flow and enhance functionality."
+            description="Configure and manage connections with third-party tools & APIs."
+            disabled
           />
-        </Link>
+        </div>
       </div>
     </div>
   )
