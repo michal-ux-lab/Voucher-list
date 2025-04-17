@@ -79,7 +79,7 @@ export default function ConnectionsPage() {
             </button>
           </div>
         </div>
-      </div>
+    </div>
     </PageTop>
   )
 }

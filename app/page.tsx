@@ -618,22 +618,22 @@ export default function VoucherListPage() {
           showStickyHeader ? 'top-[73px]' : '-translate-y-full'
         } transition-transform duration-200`}
       >
-        <h1 className="text-2xl font-bold">Voucher list</h1>
-        <div className="w-[480px] flex items-center space-x-3">
-          <div className="flex-1 relative">
-            {/* Search icon */}
-            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-              <Image src="/icons/search.svg" width={16} height={16} alt="Search icon" />
-            </div>
+            <h1 className="text-2xl font-bold">Voucher list</h1>
+            <div className="w-[480px] flex items-center space-x-3">
+              <div className="flex-1 relative">
+                {/* Search icon */}
+                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                  <Image src="/icons/search.svg" width={16} height={16} alt="Search icon" />
+                </div>
 
-            {/* Search input */}
-            <Input
-              type="text"
-              placeholder="Search by name, redemption code or groupon no."
+                {/* Search input */}
+                <Input
+                  type="text"
+                  placeholder="Search by name, redemption code or groupon no."
               className="pl-10 pr-9 py-2 border border-gray-300 radius-8 w-full"
-              value={searchQuery}
-              onChange={handleSearch}
-            />
+                  value={searchQuery}
+                  onChange={handleSearch}
+                />
 
             {/* Clear button */}
             {searchQuery && (
@@ -644,69 +644,69 @@ export default function VoucherListPage() {
                 <X className="h-4 w-4" />
               </button>
             )}
+              </div>
+
+              {/* Search button */}
+              <Button className="bg-gray-900 hover:bg-gray-800 text-white text-sm-bold !text-white radius-8">
+                Search
+              </Button>
+
+              {/* Filters button */}
+              <Button
+                variant="outline"
+                className="bg-white text-gray-700 border-gray-300 flex items-center gap-2 text-sm-bold radius-8"
+              >
+                <Image src="/icons/filter.svg" width={20} height={20} alt="Filter icon" />
+                Filters
+              </Button>
+            </div>
           </div>
-
-          {/* Search button */}
-          <Button className="bg-gray-900 hover:bg-gray-800 text-white text-sm-bold !text-white radius-8">
-            Search
-          </Button>
-
-          {/* Filters button */}
-          <Button
-            variant="outline"
-            className="bg-white text-gray-700 border-gray-300 flex items-center gap-2 text-sm-bold radius-8"
-          >
-            <Image src="/icons/filter.svg" width={20} height={20} alt="Filter icon" />
-            Filters
-          </Button>
-        </div>
-      </div>
 
       {/* Add a spacer div to prevent content jump when header becomes fixed */}
       <div className={`h-[73px] ${showStickyHeader ? 'block' : 'hidden'}`} />
 
-      {/* Page Content */}
+        {/* Page Content */}
       <div className="p-6 bg-transparent w-full">
-        {/* Page Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Voucher list</h1>
-          <div className="flex items-center space-x-3">
-            {/* Export report button */}
-            <Button variant="ghost" className="bg-white text-gray-700 flex items-center gap-2 text-xxs-bold">
-              <FileText className="w-4 h-4" />
-              Export report
-            </Button>
+          {/* Page Header */}
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold">Voucher list</h1>
+            <div className="flex items-center space-x-3">
+              {/* Export report button */}
+              <Button variant="ghost" className="bg-white text-gray-700 flex items-center gap-2 text-xxs-bold">
+                <FileText className="w-4 h-4" />
+                Export report
+              </Button>
 
-            {/* Tour the page button */}
-            <Button variant="ghost" className="bg-white text-gray-700 flex items-center gap-2 text-xxs-bold">
-              <Image src="/icons/map.svg" width={14} height={14} alt="Map icon" />
-              Tour the page
-            </Button>
+              {/* Tour the page button */}
+              <Button variant="ghost" className="bg-white text-gray-700 flex items-center gap-2 text-xxs-bold">
+                <Image src="/icons/map.svg" width={14} height={14} alt="Map icon" />
+                Tour the page
+              </Button>
 
-            {/* Print page button */}
-            <Button variant="ghost" className="bg-white text-gray-700 flex items-center gap-2 text-xxs-bold">
-              <Image src="/icons/printer.svg" width={14} height={14} alt="Printer icon" />
-              Print page
-            </Button>
-          </div>
-        </div>
-
-        {/* Search and Filter */}
-        <div className="flex items-center space-x-3 mb-6">
-          <div className="flex-1 relative">
-            {/* Search icon */}
-            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-              <Image src="/icons/search.svg" width={16} height={16} alt="Search icon" />
+              {/* Print page button */}
+              <Button variant="ghost" className="bg-white text-gray-700 flex items-center gap-2 text-xxs-bold">
+                <Image src="/icons/printer.svg" width={14} height={14} alt="Printer icon" />
+                Print page
+              </Button>
             </div>
+          </div>
 
-            {/* Search input */}
-            <Input
-              type="text"
-              placeholder="Search by name, redemption code or groupon no."
+          {/* Search and Filter */}
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="flex-1 relative">
+              {/* Search icon */}
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <Image src="/icons/search.svg" width={16} height={16} alt="Search icon" />
+              </div>
+
+              {/* Search input */}
+              <Input
+                type="text"
+                placeholder="Search by name, redemption code or groupon no."
               className="pl-10 pr-9 py-2 border border-gray-300 radius-8 w-full"
-              value={searchQuery}
-              onChange={handleSearch}
-            />
+                value={searchQuery}
+                onChange={handleSearch}
+              />
 
             {/* Clear button */}
             {searchQuery && (
@@ -717,31 +717,31 @@ export default function VoucherListPage() {
                 <X className="h-4 w-4" />
               </button>
             )}
+            </div>
+
+            {/* Search button */}
+            <Button className="bg-gray-900 hover:bg-gray-800 text-white text-sm-bold !text-white radius-8">
+              Search
+            </Button>
+
+            {/* Filters button */}
+            <Button
+              variant="outline"
+              className="bg-white text-gray-700 border-gray-300 flex items-center gap-2 text-sm-bold radius-8"
+            >
+              <Image src="/icons/filter.svg" width={20} height={20} alt="Filter icon" />
+              Filters
+            </Button>
           </div>
 
-          {/* Search button */}
-          <Button className="bg-gray-900 hover:bg-gray-800 text-white text-sm-bold !text-white radius-8">
-            Search
-          </Button>
-
-          {/* Filters button */}
-          <Button
-            variant="outline"
-            className="bg-white text-gray-700 border-gray-300 flex items-center gap-2 text-sm-bold radius-8"
-          >
-            <Image src="/icons/filter.svg" width={20} height={20} alt="Filter icon" />
-            Filters
-          </Button>
-        </div>
-
-        {/* Voucher Count and Sort */}
-        <div className="flex justify-between items-center mb-4">
-          <div className="text-gray-600 text-sm">{filteredVouchers.length} vouchers</div>
-          <div className="flex items-center space-x-2">
-            <span className="text-gray-600 text-sm">Sort by Last purchases</span>
-            <ChevronDown className="w-4 h-4 text-gray-600" />
+          {/* Voucher Count and Sort */}
+          <div className="flex justify-between items-center mb-4">
+            <div className="text-gray-600 text-sm">{filteredVouchers.length} vouchers</div>
+            <div className="flex items-center space-x-2">
+              <span className="text-gray-600 text-sm">Sort by Last purchases</span>
+              <ChevronDown className="w-4 h-4 text-gray-600" />
+            </div>
           </div>
-        </div>
 
         {/* Voucher List or Empty State */}
         {filteredVouchers.length > 0 ? (
@@ -760,7 +760,7 @@ export default function VoucherListPage() {
         ) : (
           <EmptySearch searchQuery={searchQuery} />
         )}
-      </div>
+        </div>
 
       {/* Voucher Detail Overlay */}
       {isDetailOpen && (
@@ -807,10 +807,10 @@ export default function VoucherListPage() {
                             backgroundImage: `url(${treatmentThumbnails[getTreatmentType(selectedVoucherData.optionName)]})`
                           }}
                         />
-                      </div>
+                </div>
                       <div className="flex-1">
                         <h3 className="text-md">{selectedVoucherData.optionName}</h3>
-                      </div>
+                </div>
                     </div>
 
                     {/* Status Section */}
@@ -840,7 +840,7 @@ export default function VoucherListPage() {
                             : selectedVoucherData.statusDate
                           }
                         </span>
-                      </div>
+                    </div>
                       
                       {/* Additional text for Redeemed or Refunded status */}
                       {(selectedVoucherData.status === 'Redeemed' || selectedVoucherData.status === 'Refunded') && (
@@ -849,9 +849,9 @@ export default function VoucherListPage() {
                             ? `Redeemed by ${['Customer', 'Merchant', 'Groupon'][Math.floor(Math.random() * 3)]}`
                             : 'No Longer Want/Need this Reservation'
                           }
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
+                  </div>
 
                     {/* Voucher Details Section */}
                     <div>
@@ -864,20 +864,20 @@ export default function VoucherListPage() {
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Purchase date:</span>
                           <span className="text-sm">{selectedVoucherData.purchaseDate.replace('Purchased ', '')}</span>
-                        </div>
+                </div>
                         {selectedVoucherData.badges.length > 0 && (
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-gray-600">Sold as:</span>
                             <div className="flex gap-2">
                               {selectedVoucherData.badges.map((badge, index) => (
-                                <Badge
-                                  key={index}
-                                  className={`${
+                        <Badge
+                          key={index}
+                          className={`${
                                     badge === "Promo" 
                                       ? "inline-flex items-start px-[6px] py-[2px] gap-1 bg-[#7E40B2] !text-white rounded" 
                                       : "flex items-center px-[6px] py-[2px] gap-1 bg-[#F5EDFC] !text-[#6F389B] rounded"
-                                  } border-none text-xxs-bold`}
-                                >
+                          } border-none text-xxs-bold`}
+                        >
                                   {badge === "Gift" && (
                                     <svg
                                       xmlns="http://www.w3.org/2000/svg"
@@ -898,12 +898,12 @@ export default function VoucherListPage() {
                                       <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
                                     </svg>
                                   )}
-                                  {badge}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                          {badge}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Groupon number:</span>
                           <div className="flex items-center gap-2">
@@ -935,7 +935,7 @@ export default function VoucherListPage() {
                                 onClick={() => navigator.clipboard.writeText(selectedVoucherData.voucherCode?.toString() || "")}
                               >
                                 <Image src="/icons/duplicate.svg" width={14} height={14} alt="Copy" />
-                              </Button>
+                    </Button>
                             </div>
                           </div>
                         )}
